@@ -51,14 +51,14 @@ class HDLGrammar extends GrammarDefinition {
           ref1(tokenizer, ']'))
       .permute([0, 2, 4]);
 
-  Parser number() => digit().plus().flatten();
+  Parser number() => ref1(tokenizer, digit().plus().flatten());
   Parser boolean() => ref1(tokenizer, 'true') | ref1(tokenizer, 'false');
 
   Parser separateBy(Parser parser, String char) => (parser & ref1(tokenizer, char).optional()).pick(0).star();
 
-  Parser identifier() => (ref0(startIdentifier) & ref0(identifierPart).star()).flatten();
-  Parser startIdentifier() => letter() | char('_') | char('\$');
-  Parser identifierPart() => ref0(startIdentifier) | digit();
+  Parser identifier() => ref1(tokenizer, (ref0(startIdentifier) & ref0(identifierPart).star()).flatten());
+  Parser startIdentifier() => ref0(letter) | char('_') | char('\$');
+  Parser identifierPart() => ref0(startIdentifier) | ref0(digit);
 
   Parser newLine() => pattern('\n\r');
 
@@ -69,7 +69,7 @@ class HDLGrammar extends GrammarDefinition {
 
   Parser tokenizer(Object source) {
     if (source is String) {
-      return tokenizer(string(source).token());
+      return tokenizer(string(source));
     } else if (source is Parser) {
       return source.trim(ref0(hiddens));
     }
