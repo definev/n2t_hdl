@@ -37,7 +37,7 @@ class HDLGrammar extends GrammarDefinition {
   Parser chipVariables() => ref2(separateBy, ref0(chipVariable), ',');
   Parser chipVariable() => ((ref0(arrayRangeAccess) | ref0(arrayAccess) | ref0(identifier)) &
           ref1(tokenizer, '=') &
-          (ref0(boolean) | ref0(identifier)))
+          (ref0(boolean) | ref0(arrayAccess) | ref0(identifier)))
       .permute([0, 2]);
 
   Parser variables() => ref2(separateBy, ref0(arrayAccess) | ref0(identifier), ',');
