@@ -2,7 +2,9 @@ import 'package:dart_vcd/dart_vcd.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/vcd/vcd.dart';
+import 'package:n2t_hdl/src/vcd/instance_index.dart';
+import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
+import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 
 class ComponentGate extends Gate {
   ComponentGate({
@@ -121,13 +123,13 @@ class ComponentGate extends Gate {
 
       for (int i = 0; i < inputCount; i++) {
         final name = inputNames[i];
-        vh.id[instanceIndex] = writer.addWire(1, '$instanceName-i-$name');
+        vh.ids[instanceIndex] = writer.addWire(1, '$instanceName-i-$name');
         instanceIndex = instanceIndex.copyWith(port: instanceIndex.port + 1);
       }
 
       for (int i = 0; i < outputCount; i++) {
         final name = outputNames[i];
-        vh.id[instanceIndex] = writer.addWire(1, '$instanceName-o-$name');
+        vh.ids[instanceIndex] = writer.addWire(1, '$instanceName-o-$name');
         instanceIndex = instanceIndex.copyWith(port: instanceIndex.port + 1);
       }
 
@@ -144,19 +146,19 @@ class ComponentGate extends Gate {
       writer.addModule(instanceName);
       for (int i = 0; i < component.gate.inputCount; i++) {
         final name = inputNames[i];
-        vh.id[instanceIndex] = writer.addWire(1, '$instanceName-i-$name');
+        vh.ids[instanceIndex] = writer.addWire(1, '$instanceName-i-$name');
         instanceIndex = instanceIndex.copyWith(port: instanceIndex.port + 1);
       }
 
       for (int i = 0; i < component.gate.outputCount; i++) {
         final name = outputNames[i];
-        vh.id[instanceIndex] = writer.addWire(1, '$instanceName-o-$name');
+        vh.ids[instanceIndex] = writer.addWire(1, '$instanceName-o-$name');
         instanceIndex = instanceIndex.copyWith(port: instanceIndex.port + 1);
       }
 
       depth += 1;
       final compHandler = component.gate.writeInternalComponents(writer, depth);
-      vh.id.addAll(compHandler.id);
+      vh.ids.addAll(compHandler.ids);
       writer.upscope();
     }
 

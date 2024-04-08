@@ -74,7 +74,7 @@ void runSimulation({
 
   writer.begin(SimulationCommand.dumpvars);
   writer.changeScalar(clk, Value.v1);
-  for (final id in handle.id.values) {
+  for (final id in handle.ids.values) {
     writer.changeScalar(id, Value.x);
   }
   writer.end();

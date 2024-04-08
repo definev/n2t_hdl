@@ -1,5 +1,6 @@
 import 'package:dart_vcd/dart_vcd.dart';
-import 'package:n2t_hdl/src/vcd/vcd.dart';
+import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
+import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 
 class GatePosition {
   const GatePosition({
