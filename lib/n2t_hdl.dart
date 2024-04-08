@@ -1,1 +1,1 @@
-export 'src/grammar.dart';
+export 'src/hdl/grammar.dart';

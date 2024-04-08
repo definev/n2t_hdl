@@ -73,6 +73,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  dart_vcd:
+    dependency: "direct main"
+    description:
+      name: dart_vcd
+      sha256: d4339c9d0bb0e6baa73df792c3749a146c45508d7eec18a49c1d4f6aa966a6a5
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   file:
     dependency: transitive
     description:
