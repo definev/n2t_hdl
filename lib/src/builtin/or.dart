@@ -1,32 +1,57 @@
+import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
+import 'package:n2t_hdl/src/builtin/component/component_io.dart';
+import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/nand.dart';
 
-class OrGate extends Gate {
-  OrGate()
-      : super(
-          inputCount: 2,
-          outputCount: 1,
-          name: 'OR',
-        );
+class OrGate extends ComponentGate {
+  OrGate._({
+    super.name = 'OR',
+    super.inputCount = 2,
+    super.outputCount = 1,
+    super.connections = const [
+      [
+        LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 0),
+        LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 1),
+      ],
+      [
+        LinkedConnection(fromIndex: 1, toComponent: 1, toIndex: 0),
+        LinkedConnection(fromIndex: 1, toComponent: 1, toIndex: 1),
+      ],
+    ],
+    super.portNames = const PortNames(
+      inputNames: ['a', 'b'],
+      outputNames: ['out'],
+    ),
+    required super.componentIOs,
+  });
 
-  @override
-  late final portNames = PortNames(
-    inputNames: ['a', 'b'],
-    outputNames: ['out'],
-  );
+  factory OrGate() => OrGate._(componentIOs: _componentIOs);
 
-  @override
-  List<bool?> update(List<bool?> input) {
-    bool? x = false;
-    for (final i in input) {
-      switch (i) {
-        case true:
-          return [true];
-        case null:
-          x = null;
-          break;
-        case false:
-      }
-    }
-    return [x];
-  }
+  static List<ComponentIO> get _componentIOs => [
+        ComponentIO(
+          gate: NandGate(),
+          connections: [
+            [
+              LinkedConnection(fromIndex: 0, toComponent: 2, toIndex: 0),
+            ],
+          ],
+        ),
+        ComponentIO(
+          gate: NandGate(),
+          connections: [
+            [
+              LinkedConnection(fromIndex: 0, toComponent: 2, toIndex: 1),
+            ],
+          ],
+        ),
+        ComponentIO(
+          gate: NandGate(),
+          connections: [
+            [
+              LinkedConnection.parent(fromIndex: 0, toIndex: 0),
+            ],
+          ],
+        ),
+      ];
 }

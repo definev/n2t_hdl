@@ -4,27 +4,28 @@ sealed class Connection {
   final int fromIndex;
 }
 
+class _ParentLinkedConnection extends LinkedConnection {
+  const _ParentLinkedConnection({
+    required super.fromIndex,
+    required super.toIndex,
+  }) : super(toComponent: LinkedConnection.parentIndex);
+}
+
 class LinkedConnection extends Connection {
-  LinkedConnection({
+  const LinkedConnection({
     required super.fromIndex,
     required this.toComponent,
     required this.toIndex,
   });
 
-  factory LinkedConnection.parent({required int fromIndex, required int toIndex}) {
-    return LinkedConnection(
-      fromIndex: fromIndex,
-      toComponent: LinkedConnection.parentIndex,
-      toIndex: toIndex,
-    );
-  }
+  const factory LinkedConnection.parent({required int fromIndex, required int toIndex}) = _ParentLinkedConnection;
 
   final int toComponent;
   final int toIndex;
 
   static const int parentIndex = -1;
 
-  late final bool isParent = toComponent == parentIndex;
+  bool get isParent => toComponent == parentIndex;
 
   @override
   String toString() {

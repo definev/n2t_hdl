@@ -17,7 +17,7 @@ class GatePosition {
 }
 
 class PortNames {
-  PortNames({
+  const PortNames({
     this.inputNames = const [],
     this.outputNames = const [],
   });
