@@ -1,4 +1,5 @@
 import 'package:dart_vcd/dart_vcd.dart';
+import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 
@@ -100,5 +101,28 @@ abstract class Gate implements VCDWritableGate {
   @override
   void writeInternalSignals(VCDWriter writer, int depth, VCDSignalHandle vh) {
     return;
+  }
+}
+
+extension BuiltinGate on Gate {
+  List<Connection> get builtinInputConnections {
+    return [
+      for (final (index, _) in portNames.inputNames.indexed)
+        LinkedConnection(
+          fromIndex: index,
+          toComponent: 0,
+          toIndex: index,
+        ),
+    ];
+  }
+
+  List<Connection> get builtinOutputConnections {
+    return [
+      for (final (index, _) in portNames.outputNames.indexed)
+        LinkedConnection.parent(
+          fromIndex: index,
+          toIndex: index,
+        ),
+    ];
   }
 }
