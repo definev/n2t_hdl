@@ -187,8 +187,9 @@ class ComponentGate extends Gate {
       var outputs = component.output;
       final vi = InstanceIndex(instance: depth, port: 0);
       writeVcdSignals(writer, vi, vh, inputs, outputs);
-      component.gate.writeInternalSignals(writer, depth, vh);
       depth += 1;
+
+      component.gate.writeInternalSignals(writer, depth, vh);
     }
   }
 }
