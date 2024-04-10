@@ -1,122 +1,134 @@
 import 'dart:io';
 
 import 'package:dart_vcd/dart_vcd.dart';
+import 'package:n2t_hdl/src/builtin/and.dart';
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/builtin/nand.dart';
+import 'package:n2t_hdl/src/builtin/nor.dart';
+import 'package:n2t_hdl/src/builtin/not.dart';
+import 'package:n2t_hdl/src/builtin/or.dart';
+import 'package:n2t_hdl/src/builtin/xor.dart';
 import 'package:n2t_hdl/src/utils/repeat_iterable.dart';
+import 'package:n2t_hdl/src/vcd/run_simulation.dart';
 
 void writeVCDHeader(VCDWriter writer) {
   writer.timescale(1, TimescaleUnit.us);
   writer.enddefinitions();
 }
 
-ComponentGate orGate() {
-  final orGate = ComponentGate(
-    name: 'OR',
-    inputCount: 2,
-    outputCount: 1,
-    portNames: PortNames(
-      inputNames: ['a', 'b'],
-      outputNames: ['out'],
+void main() {
+  final repeatCount = 10;
+
+  final or = OrGate();
+  final and = AndGate();
+  final xor = XorGate();
+  final nor = NorGate();
+  final mux = mux4to1();
+
+  final inputs = [
+    RepeatIterable(input: [false, false], repeatCount: 4),
+    RepeatIterable(input: [false, true], repeatCount: 4),
+    RepeatIterable(input: [true, false], repeatCount: 4),
+    RepeatIterable(input: [true, true], repeatCount: 4),
+  ].expand((e) => e);
+
+  final writer = StringBufferVCDWriter();
+
+  void simulate(ComponentGate gate, Iterable<List<bool>> inputs) {
+    runSimulation(
+      writer: writer,
+      gate: gate,
+      inputs: inputs,
+      ticks: null,
+    );
+
+    File('${gate.name}.vcd').writeAsStringSync(writer.result);
+    print('Wrote ${gate.name}.vcd');
+  }
+
+  for (final gate in [or, and, xor, nor]) {
+    simulate(gate, inputs);
+  }
+
+  final muxInputs = [
+    // RepeatIterable(
+    //   input: [false, false, false],
+    //   repeatCount: repeatCount,
+    // ),
+    // RepeatIterable(
+    //   input: [false, false, true],
+    //   repeatCount: repeatCount,
+    // ),
+    // RepeatIterable(
+    //   input: [false, true, false],
+    //   repeatCount: repeatCount,
+    // ),
+    RepeatIterable(
+      input: [false, true, true],
+      repeatCount: repeatCount,
     ),
+    RepeatIterable(
+      input: [true, false, false],
+      repeatCount: repeatCount,
+    ),
+    // RepeatIterable(
+    //   input: [true, false, true],
+    //   repeatCount: repeatCount,
+    // ),
+    // RepeatIterable(
+    //   input: [true, true, false],
+    //   repeatCount: repeatCount,
+    // ),
+    // RepeatIterable(
+    //   input: [true, true, true],
+    //   repeatCount: repeatCount,
+    // ),
+  ].expand((e) => e);
+  simulate(mux, muxInputs);
+}
+
+ComponentGate mux4to1() {
+  return ComponentGate.flatConnections(
+    name: 'MUX',
+    inputCount: 3,
+    outputCount: 1,
     connections: [
-      [
-        LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 0),
-        LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 1),
-      ],
-      [
-        LinkedConnection(fromIndex: 1, toComponent: 1, toIndex: 0),
-        LinkedConnection(fromIndex: 1, toComponent: 1, toIndex: 1),
-      ]
+      LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 0),
+      LinkedConnection(fromIndex: 1, toComponent: 2, toIndex: 0),
+      LinkedConnection(fromIndex: 2, toComponent: 0, toIndex: 0),
+      LinkedConnection(fromIndex: 2, toComponent: 2, toIndex: 1),
     ],
     componentIOs: [
       ComponentIO.flatConnections(
-        gate: NandGate(),
+        gate: NotGate(),
         connections: [
-          LinkedConnection(fromIndex: 0, toComponent: 2, toIndex: 0),
+          LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 1),
         ],
       ),
       ComponentIO.flatConnections(
-        gate: NandGate(),
+        gate: AndGate(),
         connections: [
-          LinkedConnection(fromIndex: 0, toComponent: 2, toIndex: 1),
+          LinkedConnection(fromIndex: 0, toComponent: 3, toIndex: 0),
         ],
       ),
       ComponentIO.flatConnections(
-        gate: NandGate(),
+        gate: AndGate(),
+        connections: [
+          LinkedConnection(fromIndex: 0, toComponent: 3, toIndex: 1),
+        ],
+      ),
+      ComponentIO.flatConnections(
+        gate: OrGate(),
         connections: [
           LinkedConnection.parent(fromIndex: 0, toIndex: 0),
         ],
       ),
     ],
+    portNames: const PortNames(
+      inputNames: ['a', 'b', 'sel'],
+      outputNames: ['out'],
+    ),
   );
-
-  return orGate;
-}
-
-void runSimulation({
-  required VCDWriter writer,
-  required ComponentGate gate,
-  required Iterable<List<bool?>> inputs,
-  required int? ticks,
-}) {
-  writer.timescale(1, TimescaleUnit.ns);
-
-  final handle = gate.writeInternalComponents(writer, 0);
-  writer.addModule('clk');
-  final clk = writer.addWire(1, 'clk');
-  writer.upscope();
-
-  writer.enddefinitions();
-
-  writer.begin(SimulationCommand.dumpvars);
-  writer.changeScalar(clk, Value.v1);
-  for (final id in handle.ids.values) {
-    writer.changeScalar(id, Value.x);
-  }
-  writer.end();
-
-  final inputCount = gate.inputCount;
-  var clkValue = Value.v1;
-  var cycle = 0;
-
-  for (final input in inputs.take(ticks ?? inputs.length)) {
-    writer.timestamp(cycle);
-    final currentInput = input.sublist(input.length - inputCount);
-
-    gate.update(currentInput);
-
-    gate.writeInternalSignals(writer, 0, handle);
-    writer.changeScalar(clk, switch (clkValue) { Value.v1 => Value.v0, Value.v0 => Value.v1, _ => Value.x });
-    clkValue = clkValue == Value.v1 ? Value.v0 : Value.v1;
-    cycle += 1;
-  }
-
-  writer.timestamp(cycle);
-}
-
-void main() {
-  final or = orGate();
-
-  final inputs = [
-    RepeatIterable(input: [false, false], repeatCount: 2),
-    RepeatIterable(input: [false, true], repeatCount: 2),
-    RepeatIterable(input: [true, false], repeatCount: 2),
-    RepeatIterable(input: [true, true], repeatCount: 2),
-  ].expand((e) => e);
-
-  final writer = StringBufferVCDWriter();
-
-  runSimulation(
-    writer: writer,
-    gate: or,
-    inputs: inputs,
-    ticks: null,
-  );
-
-  File('or_comp.vcd').writeAsStringSync(writer.result);
-  print('Wrote or_comp.vcd');
 }
