@@ -17,6 +17,16 @@ class GatePosition {
   final bool input;
 }
 
+extension QuickAccessGatePosition on List<GatePosition> {
+  GatePosition? findByName(String name) {
+    try {
+      return firstWhere((element) => element.name == name);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
 class PortNames {
   const PortNames({
     this.inputNames = const [],
