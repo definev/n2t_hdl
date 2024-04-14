@@ -47,6 +47,14 @@ class GatePart {
   final List<PartConnectionType> connectionTypes;
 }
 
+/// A gate that is composed of multiple parts.
+/// 
+/// This gate is used to represent a gate that is composed of multiple parts.
+/// 
+/// - [name] is the name of the gate.
+/// - [parts] is a list of [GatePart] that represents the parts of the gate.
+/// 
+/// Should be set the blueprint of the owner gate before calling [build].
 class PartsGate extends GateKind {
   PartsGate({
     required this.name,
