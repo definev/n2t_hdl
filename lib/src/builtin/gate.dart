@@ -55,7 +55,7 @@ class PortNames {
   /// }
   /// ```
   ///
-  List<GatePosition> connections(int component) {
+  List<GatePosition> positions(int component) {
     return [
       for (final (index, input) in inputNames.indexed)
         GatePosition(

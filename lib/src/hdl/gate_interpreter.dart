@@ -61,205 +61,129 @@ class PartsGate extends GateKind {
     final ownerGateBlueprint = blueprint;
     if (ownerGateBlueprint == null) throw Exception('Blueprint not set');
 
-    final ownerGatePosition = ownerGateBlueprint.portNames.connections(LinkedConnection.parentIndex);
+    final ownerGatePositions = ownerGateBlueprint.portNames.positions(LinkedConnection.parentIndex);
 
     List<Connection> ownerGateConnections = [];
-    List<(Gate, List<Connection>)> componentIOBuilders = [];
+    List<({Gate gate, List<Connection> connections})> componentIOBuilders = [];
 
-    Map<String, GatePosition> temporaryGateConnections = {};
+    Map<String, GatePosition> temporaryGatePositions = {};
 
     for (final (partIndex, part) in parts.indexed) {
-      final (partGate, partConnections) = (factory.build(part.name), <Connection>[]);
+      final (partGate, partGateConnections) = (factory.build(part.name), <Connection>[]);
 
       final connectionTypes = part.connectionTypes;
 
-      final partGateConnections = partGate.portNames.connections(partIndex);
+      final partGatePositions = partGate.portNames.positions(partIndex);
 
-      void resolveGatePosition(
+      T resolveGatePosition<T>(
         String name, {
-        required void Function(GatePosition) onOwnerGatePosition,
-        required void Function(GatePosition) onTemporaryGatePosition,
-        required void Function() onNotFound,
+        T Function(GatePosition)? onOwnerGatePosition,
+        T Function(GatePosition)? onPartGatePosition,
+        T Function(GatePosition)? onTemporaryGatePosition,
+        required T Function() onNotFound,
       }) {
-        if (partGateConnections.findByName(name) case final connection?) {
-          onOwnerGatePosition(connection);
-        } else if (temporaryGateConnections[name] case final connection?) {
-          onTemporaryGatePosition(connection);
+        if (ownerGatePositions.findByName(name) case final position? when onOwnerGatePosition != null) {
+          return onOwnerGatePosition(position);
+        } else if (partGatePositions.findByName(name) case final position? when onPartGatePosition != null) {
+          return onPartGatePosition(position);
+        } else if (temporaryGatePositions[name] case final position? when onTemporaryGatePosition != null) {
+          return onTemporaryGatePosition(position);
         } else {
-          onNotFound();
+          return onNotFound();
         }
+      }
+
+      void handleOneToConstant(String at, bool value) {
+        resolveGatePosition(
+          at,
+          onPartGatePosition: (position) {
+            if (position.input) {
+              partGateConnections.add(ConstantConnection(value: value, fromIndex: position.index));
+            } else {
+              throw ArgumentError('Invalid part connection: $at');
+            }
+          },
+          onNotFound: () => throw ArgumentError('Invalid part connection: $at'),
+        );
+      }
+
+      void handleOneToOne(String left, String right) {
+        final leftPosition = resolveGatePosition(
+          left,
+          onPartGatePosition: (position) => position,
+          onNotFound: () => throw ArgumentError('Invalid part connection: $left'),
+        );
+        resolveGatePosition(
+          right,
+          onOwnerGatePosition: (rightPosition) => switch ('') {
+            _ when leftPosition.input && rightPosition.input => ownerGateConnections.add(
+                LinkedConnection(
+                  fromIndex: rightPosition.index,
+                  toComponent: leftPosition.component,
+                  toIndex: leftPosition.index,
+                ),
+              ),
+            _ when leftPosition.input == false && rightPosition.input == false => partGateConnections.add(
+                LinkedConnection(
+                  fromIndex: leftPosition.index,
+                  toComponent: rightPosition.component,
+                  toIndex: rightPosition.index,
+                ),
+              ),
+            _ => throw ArgumentError('Invalid part connection: $right'),
+          },
+          onTemporaryGatePosition: (rightPosition) => switch ('') {
+            _ when leftPosition.input && rightPosition.input == false => () {
+                final temporaryPart = componentIOBuilders[rightPosition.component];
+                temporaryPart.connections.add(
+                  LinkedConnection(
+                    fromIndex: rightPosition.index,
+                    toComponent: leftPosition.component,
+                    toIndex: leftPosition.index,
+                  ),
+                );
+                componentIOBuilders[rightPosition.component] = temporaryPart;
+              }(),
+            _ => throw ArgumentError('Invalid part connection: $right'),
+          },
+          onNotFound: () {
+            if (leftPosition.input == false) {
+              temporaryGatePositions[right] = leftPosition;
+            }
+          },
+        );
       }
 
       for (final connectionType in connectionTypes) {
         switch (connectionType) {
           case OneToConstant(:final at, :final value):
-            if (partGateConnections.findByName(at)
-                case GatePosition(
-                  :final input,
-                  :final index,
-                )? when input) {
-              partConnections.add(ConstantConnection(value: value, fromIndex: index));
-            } else {
-              throw ArgumentError('Invalid part connection: $connectionType');
-            }
+            handleOneToConstant(at, value);
           case OneToOne(:final left, :final right):
-            if (partGateConnections.findByName(left) case final leftPosition? when leftPosition.input) {
-              final GatePosition(
-                input: leftInput,
-                component: leftComponent,
-                index: leftIndex,
-              ) = leftPosition;
-              switch (leftInput) {
-                case true:
-                  resolveGatePosition(
-                    right,
-                    onNotFound: () => throw ArgumentError('Invalid part connection: $connectionType'),
-                    onOwnerGatePosition: (position) {
-                      switch (position.input) {
-                        case false:
-                          throw ArgumentError('Invalid part connection: $name');
-                        case true:
-                          ownerGateConnections.add(
-                            LinkedConnection(
-                              fromIndex: position.index,
-                              toComponent: leftComponent,
-                              toIndex: leftIndex,
-                            ),
-                          );
-                      }
-                    },
-                    onTemporaryGatePosition: (position) {
-                      switch (position.input) {
-                        case false:
-                          var componentIOBuilder = componentIOBuilders[position.component];
-                          componentIOBuilder.$2.add(
-                            LinkedConnection(
-                              fromIndex: position.index,
-                              toComponent: partIndex,
-                              toIndex: leftIndex,
-                            ),
-                          );
-                          componentIOBuilders[position.component] = componentIOBuilder;
-                        case true:
-                          throw ArgumentError('Invalid part connection: $connectionType');
-                      }
-                    },
-                  );
-                case false:
-                  void onPosition(GatePosition rightPosition) {
-                    switch (rightPosition.input) {
-                      case true:
-                        throw ArgumentError('Invalid part connection: $connectionType');
-                      case false:
-                        partConnections.add(
-                          LinkedConnection(
-                            fromIndex: leftIndex,
-                            toComponent: rightPosition.component,
-                            toIndex: rightPosition.index,
-                          ),
-                        );
-                    }
-                  }
-
-                  resolveGatePosition(
-                    right,
-                    onOwnerGatePosition: onPosition,
-                    onTemporaryGatePosition: onPosition,
-                    onNotFound: () => temporaryGateConnections[right] = leftPosition,
-                  );
-              }
-            }
+            handleOneToOne(left, right);
           case ManyToConstant(:final atList, :final value):
-            assert(atList.isEmpty, 'Invalid part connection: $connectionType');
-
             for (final at in atList) {
-              if (partGateConnections.findByName(at) case final position? when position.input) {
-                partConnections.add(ConstantConnection(value: value, fromIndex: position.index));
-              } else {
-                throw ArgumentError('Invalid part connection: $connectionType');
-              }
+              handleOneToConstant(at, value);
             }
           case ManyToOne(:final lefts, :final right):
-            assert(lefts.isEmpty, 'Invalid part connection: $connectionType');
-
             for (final left in lefts) {
-              // TODO: Extract this logic to a function
-              if (partGateConnections.findByName(left) case final leftPosition? when leftPosition.input) {
-                final GatePosition(
-                  input: leftInput,
-                  component: leftComponent,
-                  index: leftIndex,
-                ) = leftPosition;
-                switch (leftInput) {
-                  case true:
-                    resolveGatePosition(
-                      right,
-                      onNotFound: () => throw ArgumentError('Invalid part connection: $connectionType'),
-                      onOwnerGatePosition: (position) {
-                        switch (position.input) {
-                          case false:
-                            throw ArgumentError('Invalid part connection: $name');
-                          case true:
-                            ownerGateConnections.add(
-                              LinkedConnection(
-                                fromIndex: position.index,
-                                toComponent: leftComponent,
-                                toIndex: leftIndex,
-                              ),
-                            );
-                        }
-                      },
-                      onTemporaryGatePosition: (position) {
-                        switch (position.input) {
-                          case false:
-                            var componentIOBuilder = componentIOBuilders[position.component];
-                            componentIOBuilder.$2.add(
-                              LinkedConnection(
-                                fromIndex: position.index,
-                                toComponent: partIndex,
-                                toIndex: leftIndex,
-                              ),
-                            );
-                            componentIOBuilders[position.component] = componentIOBuilder;
-                          case true:
-                            throw ArgumentError('Invalid part connection: $connectionType');
-                        }
-                      },
-                    );
-                  case false:
-                    void onPosition(GatePosition rightPosition) {
-                      switch (rightPosition.input) {
-                        case true:
-                          throw ArgumentError('Invalid part connection: $connectionType');
-                        case false:
-                          partConnections.add(
-                            LinkedConnection(
-                              fromIndex: leftIndex,
-                              toComponent: rightPosition.component,
-                              toIndex: rightPosition.index,
-                            ),
-                          );
-                      }
-                    }
-
-                    resolveGatePosition(
-                      right,
-                      onOwnerGatePosition: onPosition,
-                      onTemporaryGatePosition: onPosition,
-                      onNotFound: () => temporaryGateConnections[right] = leftPosition,
-                    );
-                }
-              }
+              handleOneToOne(left, right);
             }
         }
       }
 
-      componentIOBuilders.add((partGate, partConnections));
+      componentIOBuilders.add((gate: partGate, connections: partGateConnections));
     }
 
     return (
       ownerGateConnections,
-      componentIOBuilders.map((e) => ComponentIO.flatConnections(gate: e.$1, connections: e.$2)).toList(),
+      componentIOBuilders
+          .map(
+            (e) => ComponentIO.flatConnections(
+              gate: e.gate,
+              connections: e.connections,
+            ),
+          )
+          .toList(),
     );
   }
 }
