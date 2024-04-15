@@ -1,197 +1,147 @@
-import 'package:n2t_hdl/src/builtin/component/component_io.dart';
-import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
 import 'package:n2t_hdl/src/hdl/gate_blueprint.dart';
-import 'package:n2t_hdl/src/hdl/gate_factory.dart';
+import 'package:n2t_hdl/src/hdl/gate_kind/gate_kind.dart';
+import 'package:n2t_hdl/src/hdl/interpreter.dart';
+import 'package:n2t_hdl/src/hdl/node.dart';
 import 'package:n2t_hdl/src/hdl/part_connection.dart';
+import 'package:petitparser/petitparser.dart';
 
-sealed class GateKind {
-  GateKind();
-
-  GateBlueprint? blueprint;
-  void setBlueprint(GateBlueprint blueprint) {
-    this.blueprint = blueprint;
-  }
-
-  (List<Connection>, List<ComponentIO>) build(GateFactory factory);
-}
-
-class BuiltinGate extends GateKind {
-  BuiltinGate(this.name);
-
-  final String name;
-
+class GateInterpreter extends HDLInterpreter {
   @override
-  (List<Connection>, List<ComponentIO>) build(GateFactory factory) {
-    final gate = factory.build(name);
-
-    return (
-      gate.builtinInputConnections,
-      [
-        ComponentIO.flatConnections(
-          gate: gate,
-          connections: gate.builtinOutputConnections,
-        ),
-      ],
+  Parser inputDeclaration() {
+    final parser = super.inputDeclaration();
+    return parser.map(
+      (value) {
+        final node = value as Node;
+        return [
+          for (final input in node.children)
+            ...switch (input) {
+              ValueNode() when input.code == NodeCode.arrayAccess => _getArray(input),
+              ValueNode() when input.code == NodeCode.tokenizer => [input.value],
+              _ => throw UnimplementedError('Unknown input $input'),
+            },
+        ];
+      },
     );
   }
-}
-
-class GatePart {
-  const GatePart({
-    required this.name,
-    required this.connectionTypes,
-  });
-
-  final String name;
-  final List<PartConnectionType> connectionTypes;
-}
-
-/// A gate that is composed of multiple parts.
-/// 
-/// This gate is used to represent a gate that is composed of multiple parts.
-/// 
-/// - [name] is the name of the gate.
-/// - [parts] is a list of [GatePart] that represents the parts of the gate.
-/// 
-/// Should be set the blueprint of the owner gate before calling [build].
-class PartsGate extends GateKind {
-  PartsGate({
-    required this.name,
-    required this.parts,
-  });
-
-  final String name;
-  final List<GatePart> parts;
 
   @override
-  (List<Connection>, List<ComponentIO>) build(GateFactory factory) {
-    final ownerGateBlueprint = blueprint;
-    if (ownerGateBlueprint == null) throw Exception('Blueprint not set');
-
-    final ownerGatePositions = ownerGateBlueprint.portNames.positions(LinkedConnection.parentIndex);
-
-    List<Connection> ownerGateConnections = [];
-    List<({Gate gate, List<Connection> connections})> componentIOBuilders = [];
-
-    Map<String, GatePosition> temporaryGatePositions = {};
-
-    for (final (partIndex, part) in parts.indexed) {
-      final (partGate, partGateConnections) = (factory.build(part.name), <Connection>[]);
-
-      final connectionTypes = part.connectionTypes;
-
-      final partGatePositions = partGate.portNames.positions(partIndex);
-
-      T resolveGatePosition<T>(
-        String name, {
-        T Function(GatePosition)? onOwnerGatePosition,
-        T Function(GatePosition)? onPartGatePosition,
-        T Function(GatePosition)? onTemporaryGatePosition,
-        required T Function() onNotFound,
-      }) {
-        if (ownerGatePositions.findByName(name) case final position? when onOwnerGatePosition != null) {
-          return onOwnerGatePosition(position);
-        } else if (partGatePositions.findByName(name) case final position? when onPartGatePosition != null) {
-          return onPartGatePosition(position);
-        } else if (temporaryGatePositions[name] case final position? when onTemporaryGatePosition != null) {
-          return onTemporaryGatePosition(position);
-        } else {
-          return onNotFound();
-        }
-      }
-
-      void handleOneToConstant(String at, bool value) {
-        resolveGatePosition(
-          at,
-          onPartGatePosition: (position) {
-            if (position.input) {
-              partGateConnections.add(ConstantConnection(value: value, fromIndex: position.index));
-            } else {
-              throw ArgumentError('Invalid part connection: $at');
-            }
+  Parser outputDeclaration() {
+    final parser = super.outputDeclaration();
+    return parser.map((value) {
+      final node = value as Node;
+      return [
+        for (final output in node.children)
+          ...switch (output) {
+            ValueNode() when output.code == NodeCode.arrayAccess => _getArray(output),
+            ValueNode() when output.code == NodeCode.tokenizer => [output.value],
+            _ => throw UnimplementedError('Unknown output $output'),
           },
-          onNotFound: () => throw ArgumentError('Invalid part connection: $at'),
+      ];
+    });
+  }
+
+  String _getArrayAccess(ValueNode node) {
+    assert(node.code == NodeCode.arrayAccess);
+    final arrayAccess = node.children[0] as ValueNode;
+    return '${node.value}#${arrayAccess.value}';
+  }
+
+  List<String> _getArray(ValueNode node) {
+    assert(node.code == NodeCode.arrayAccess);
+    final arrayAccess = node.children[0] as ValueNode;
+    final length = int.parse(arrayAccess.value);
+    return [for (var index = 0; index < length; index += 1) '${node.value}#$index'];
+  }
+
+  List<String> _getArrayRangeAccess(ValueNode node) {
+    assert(node.code == NodeCode.arrayRangeAccess);
+    final start = int.parse((node.children[0] as ValueNode).value);
+    final end = int.parse((node.children[1] as ValueNode).value);
+    return [for (var index = start; index <= end; index += 1) '${node.value}#$index'];
+  }
+
+  PartConnectionType _parsePartChipCallable(dynamic value) {
+    final node = value as Node;
+    final left = node.children[0] as ValueNode;
+    final right = node.children[1] as ValueNode;
+
+    return switch (true) {
+      /// Array range access relationship
+      _ when left.code == NodeCode.arrayRangeAccess && right.code == NodeCode.tokenizer && right.value == 'true' =>
+        ManyToConstant(atList: _getArrayRangeAccess(left), value: true),
+      _ when left.code == NodeCode.arrayRangeAccess && right.code == NodeCode.tokenizer && right.value == 'false' =>
+        ManyToConstant(atList: _getArrayRangeAccess(left), value: false),
+      _ when left.code == NodeCode.arrayRangeAccess && right.code == NodeCode.tokenizer =>
+        ManyToOne(lefts: _getArrayRangeAccess(left), right: right.value),
+
+      /// Array access relationship
+      _ when left.code == NodeCode.arrayAccess && right.code == NodeCode.tokenizer && right.value == 'true' =>
+        OneToConstant(at: _getArrayAccess(left), value: true),
+      _ when left.code == NodeCode.arrayAccess && right.code == NodeCode.tokenizer && right.value == 'false' =>
+        OneToConstant(at: _getArrayAccess(left), value: false),
+      _ when left.code == NodeCode.arrayAccess && right.code == NodeCode.tokenizer =>
+        OneToOne(left: _getArrayAccess(left), right: right.value),
+
+      /// One to one relationship
+      _ when left.code == NodeCode.tokenizer && right.code == NodeCode.tokenizer && right.value == 'true' =>
+        OneToConstant(at: left.value, value: true),
+      _ when left.code == NodeCode.tokenizer && right.code == NodeCode.tokenizer && right.value == 'false' =>
+        OneToConstant(at: left.value, value: false),
+      _ when left.code == NodeCode.tokenizer && right.code == NodeCode.tokenizer =>
+        OneToOne(left: left.value, right: right.value),
+      _ => throw UnimplementedError('Unknown relationship between $left and $right'),
+    };
+  }
+
+  @override
+  Parser chipCallable() {
+    final parser = super.chipCallable();
+    return parser.map(
+      (value) {
+        final node = value as ValueNode;
+        return GatePart(
+          name: node.value,
+          connectionTypes: node.children.map(_parsePartChipCallable).toList(),
         );
-      }
-
-      void handleOneToOne(String left, String right) {
-        final leftPosition = resolveGatePosition(
-          left,
-          onPartGatePosition: (position) => position,
-          onNotFound: () => throw ArgumentError('Invalid part connection: $left'),
-        );
-        resolveGatePosition(
-          right,
-          onOwnerGatePosition: (rightPosition) => switch ('') {
-            _ when leftPosition.input && rightPosition.input => ownerGateConnections.add(
-                LinkedConnection(
-                  fromIndex: rightPosition.index,
-                  toComponent: leftPosition.component,
-                  toIndex: leftPosition.index,
-                ),
-              ),
-            _ when leftPosition.input == false && rightPosition.input == false => partGateConnections.add(
-                LinkedConnection(
-                  fromIndex: leftPosition.index,
-                  toComponent: rightPosition.component,
-                  toIndex: rightPosition.index,
-                ),
-              ),
-            _ => throw ArgumentError('Invalid part connection: $right'),
-          },
-          onTemporaryGatePosition: (rightPosition) => switch ('') {
-            _ when leftPosition.input && rightPosition.input == false => () {
-                final temporaryPart = componentIOBuilders[rightPosition.component];
-                temporaryPart.connections.add(
-                  LinkedConnection(
-                    fromIndex: rightPosition.index,
-                    toComponent: leftPosition.component,
-                    toIndex: leftPosition.index,
-                  ),
-                );
-                componentIOBuilders[rightPosition.component] = temporaryPart;
-              }(),
-            _ => throw ArgumentError('Invalid part connection: $right'),
-          },
-          onNotFound: () {
-            if (leftPosition.input == false) {
-              temporaryGatePositions[right] = leftPosition;
-            }
-          },
-        );
-      }
-
-      for (final connectionType in connectionTypes) {
-        switch (connectionType) {
-          case OneToConstant(:final at, :final value):
-            handleOneToConstant(at, value);
-          case OneToOne(:final left, :final right):
-            handleOneToOne(left, right);
-          case ManyToConstant(:final atList, :final value):
-            for (final at in atList) {
-              handleOneToConstant(at, value);
-            }
-          case ManyToOne(:final lefts, :final right):
-            for (final left in lefts) {
-              handleOneToOne(left, right);
-            }
-        }
-      }
-
-      componentIOBuilders.add((gate: partGate, connections: partGateConnections));
-    }
-
-    return (
-      ownerGateConnections,
-      componentIOBuilders
-          .map(
-            (e) => ComponentIO.flatConnections(
-              gate: e.gate,
-              connections: e.connections,
-            ),
-          )
-          .toList(),
+      },
     );
+  }
+
+  @override
+  Parser partDeclaration() {
+    final parser = super.partDeclaration();
+    return parser.map(
+      (callable) {
+        callable = callable as Node;
+        return switch (true) {
+          _ when callable.code == NodeCode.partDeclaration =>
+            PartsGate(parts: callable.children.whereType<GatePart>().toList()),
+          _ => throw UnimplementedError('Unknown callable $callable'),
+        };
+      },
+    );
+  }
+
+  @override
+  Parser chipDefinition() {
+    final parser = super.chipDefinition();
+    return parser.map(
+      (value) {
+        value = value as ValueNode;
+        final inputs = value.children[0] as List<String>;
+        final outputs = value.children[1] as List<String>;
+        final portNames = PortNames(inputNames: inputs, outputNames: outputs);
+        final kind = value.children[2] as GateKind;
+
+        return GateBlueprint(name: value.value, portNames: portNames, kind: kind);
+      },
+    );
+  }
+
+  @override
+  Parser<List<GateBlueprint>> module() {
+    final parser = super.module();
+    return parser.map((value) => (value as Node).children.cast<GateBlueprint>().toList());
   }
 }
