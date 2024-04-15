@@ -17,7 +17,7 @@ sealed class Node {
 
   Node? parent;
   final NodeCode code;
-  final List<Node> children = [];
+  final List<dynamic> children = [];
 
   Map<String, dynamic> toJson() {
     return {
@@ -27,10 +27,10 @@ sealed class Node {
     };
   }
 
-  void propagateParent() {
+  void propagateParent([bool recursive = true]) {
     for (final child in children) {
       child.parent = this;
-      child.propagateParent();
+      if (recursive) child.propagateParent();
     }
   }
 }
@@ -47,7 +47,7 @@ class ValueNode extends Node {
   @override
   Map<String, dynamic> toJson() {
     return {
-      ... super.toJson(),
+      ...super.toJson(),
       'value': value,
     };
   }
