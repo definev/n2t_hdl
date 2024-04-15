@@ -18,6 +18,22 @@ void writeVCDHeader(VCDWriter writer) {
   writer.enddefinitions();
 }
 
+void simulate(
+  ComponentGate gate,
+  Iterable<List<bool>> inputs, {
+  required VCDWriter writer,
+}) {
+  runSimulation(
+    writer: writer,
+    gate: gate,
+    inputs: inputs,
+    ticks: null,
+  );
+
+  (File('dump/${gate.name}.vcd')..createSync(recursive: true)).writeAsStringSync(writer.result);
+  print('Wrote ${gate.name}.vcd');
+}
+
 void main() {
   final repeatCount = 10;
 
@@ -36,20 +52,8 @@ void main() {
 
   final writer = StringBufferVCDWriter();
 
-  void simulate(ComponentGate gate, Iterable<List<bool>> inputs) {
-    runSimulation(
-      writer: writer,
-      gate: gate,
-      inputs: inputs,
-      ticks: null,
-    );
-
-    File('${gate.name}.vcd').writeAsStringSync(writer.result);
-    print('Wrote ${gate.name}.vcd');
-  }
-
   for (final gate in [or, and, xor, nor]) {
-    simulate(gate, inputs);
+    simulate(gate, inputs, writer: writer);
   }
 
   final muxInputs = [
@@ -86,7 +90,7 @@ void main() {
     //   repeatCount: repeatCount,
     // ),
   ].expand((e) => e);
-  simulate(mux, muxInputs);
+  simulate(mux, muxInputs, writer: writer);
 }
 
 ComponentGate mux4to1() {
