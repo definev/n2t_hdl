@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:dart_vcd/dart_vcd.dart';
-import 'package:n2t_hdl/src/hdl/gate_blueprint.dart';
-import 'package:n2t_hdl/src/hdl/gate_factory.dart';
-import 'package:n2t_hdl/src/hdl/gate_interpreter.dart';
+import 'package:n2t_hdl/src/gate/gate_blueprint.dart';
+import 'package:n2t_hdl/src/gate/gate_factory.dart';
+import 'package:n2t_hdl/src/gate/gate_interpreter.dart';
 import 'package:n2t_hdl/src/utils/repeat_iterable.dart';
 
 import 'vcd.dart';
