@@ -32,7 +32,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser chipVariable() {
     final parser = super.chipVariable();
     return parser.map(
-      (value) => HierarchicalNode(NodeCode.chipVariable)..children.addAll(value.whereType<Node>()),
+      (value) => HierarchicalNode(NodeCode.chipVariable)..children.addAll(value),
     );
   }
 
@@ -40,7 +40,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser chipCallable() {
     final parser = super.chipCallable();
     return parser.map(
-      (value) => ValueNode(NodeCode.chipCallable, value[0].value)..children.addAll(value[1].whereType<Node>()),
+      (value) => ValueNode(NodeCode.chipCallable, value[0].value)..children.addAll(value[1]),
     );
   }
 
@@ -48,7 +48,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser partDeclaration() {
     final parser = super.partDeclaration();
     return parser.map(
-      (value) => HierarchicalNode(NodeCode.partDeclaration)..children.addAll(value[1].whereType<Node>()),
+      (value) => HierarchicalNode(NodeCode.partDeclaration)..children.addAll(value[1]),
     );
   }
 
@@ -64,7 +64,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser outputDeclaration() {
     final parser = super.outputDeclaration();
     return parser.map(
-      (value) => HierarchicalNode(NodeCode.outputDeclaration)..children.addAll(value[1].whereType<Node>()),
+      (value) => HierarchicalNode(NodeCode.outputDeclaration)..children.addAll(value[1]),
     );
   }
 
@@ -72,7 +72,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser inputDeclaration() {
     final parser = super.inputDeclaration();
     return parser.map(
-      (value) => HierarchicalNode(NodeCode.inputDeclaration)..children.addAll(value[1].whereType<Node>()),
+      (value) => HierarchicalNode(NodeCode.inputDeclaration)..children.addAll(value[1]),
     );
   }
 
@@ -80,7 +80,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser chipDefinition() {
     final parser = super.chipDefinition();
     return parser.map(
-      (value) => ValueNode(NodeCode.chipDefinition, value[1].value)..children.addAll(value[2].whereType<Node>()),
+      (value) => ValueNode(NodeCode.chipDefinition, value[1].value)..children.addAll(value[2]),
     );
   }
 
@@ -88,9 +88,7 @@ class HDLInterpreter extends HDLGrammar {
   Parser module() {
     final parser = super.module();
     return parser.map(
-      (value) => HierarchicalNode(NodeCode.module)
-        ..children.addAll(value.whereType<Node>())
-        ..propagateParent(),
+      (value) => HierarchicalNode(NodeCode.module)..children.addAll(value),
     );
   }
 }
