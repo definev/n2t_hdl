@@ -7,20 +7,22 @@ import 'package:n2t_hdl/src/builtin/xor.dart';
 import 'package:n2t_hdl/src/hdl/gate_definition.dart';
 
 class GateFactory {
+  static final defaultFactory = GateFactory();
+
   final Map<String, GateDefinition> _gates = {
-    'NAND': BuiltinChipDefinition(
+    'Nand': BuiltinChipDefinition(
       gateBuilder: () => NandGate(),
     ),
-    'AND': BuiltinChipDefinition(
+    'And': BuiltinChipDefinition(
       gateBuilder: () => AndGate(),
     ),
-    'OR': BuiltinChipDefinition(
+    'Or': BuiltinChipDefinition(
       gateBuilder: () => OrGate(),
     ),
-    'NOT': BuiltinChipDefinition(
+    'Not': BuiltinChipDefinition(
       gateBuilder: () => NotGate(),
     ),
-    'XOR': BuiltinChipDefinition(
+    'Xor': BuiltinChipDefinition(
       gateBuilder: () => XorGate(),
     ),
   };

@@ -1,7 +1,8 @@
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
 import 'package:n2t_hdl/src/hdl/gate_factory.dart';
-import 'package:n2t_hdl/src/hdl/gate_interpreter.dart';
+
+import 'gate_kind/gate_kind.dart';
 
 class GateBlueprint {
   GateBlueprint({
@@ -15,6 +16,7 @@ class GateBlueprint {
   final GateKind kind;
 
   ComponentGate build(GateFactory factory) {
+    kind.setBlueprint(this);
     final (connections, componentIOs) = kind.build(factory);
 
     return ComponentGate.flatConnections(
