@@ -1,5 +1,5 @@
 import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/hdl/gate_factory.dart';
+import 'package:n2t_hdl/src/gate/gate_factory.dart';
 
 sealed class GateDefinition {
   const GateDefinition();

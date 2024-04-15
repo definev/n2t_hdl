@@ -1,9 +1,9 @@
 import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/hdl/gate_blueprint.dart';
-import 'package:n2t_hdl/src/hdl/gate_kind/gate_kind.dart';
+import 'package:n2t_hdl/src/gate/gate_blueprint.dart';
+import 'package:n2t_hdl/src/gate/gate_kind/gate_kind.dart';
+import 'package:n2t_hdl/src/gate/part_connection.dart';
 import 'package:n2t_hdl/src/hdl/interpreter.dart';
 import 'package:n2t_hdl/src/hdl/node.dart';
-import 'package:n2t_hdl/src/hdl/part_connection.dart';
 import 'package:petitparser/petitparser.dart';
 
 class GateInterpreter extends HDLInterpreter {

@@ -4,7 +4,7 @@ import 'package:n2t_hdl/src/builtin/nand.dart';
 import 'package:n2t_hdl/src/builtin/not.dart';
 import 'package:n2t_hdl/src/builtin/or.dart';
 import 'package:n2t_hdl/src/builtin/xor.dart';
-import 'package:n2t_hdl/src/hdl/gate_definition.dart';
+import 'package:n2t_hdl/src/gate/gate_definition.dart';
 
 class GateFactory {
   static final defaultFactory = GateFactory();

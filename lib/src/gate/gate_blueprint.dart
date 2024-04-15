@@ -1,6 +1,6 @@
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/hdl/gate_factory.dart';
+import 'package:n2t_hdl/src/gate/gate_factory.dart';
 
 import 'gate_kind/gate_kind.dart';
 
