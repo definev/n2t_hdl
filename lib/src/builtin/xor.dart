@@ -1,24 +1,22 @@
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/builtin/nand.dart';
 
 class XorGate extends ComponentGate {
-  XorGate._({
-    required super.name,
-    required super.inputCount,
-    required super.outputCount,
+  XorGate.internal({
+    super.info = const GateInfo(
+      name: 'Xor',
+      inputs: ['a', 'b'],
+      outputs: ['out'],
+    ),
     required super.connections,
     required super.componentIOs,
-    required super.portNames,
   });
 
-  factory XorGate() => XorGate._(
+  factory XorGate() => XorGate.internal(
         componentIOs: _componentIOs,
-        name: 'XOR',
-        inputCount: 2,
-        outputCount: 1,
         connections: [
           [
             LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 0),
@@ -29,10 +27,6 @@ class XorGate extends ComponentGate {
             LinkedConnection(fromIndex: 1, toComponent: 2, toIndex: 1),
           ],
         ],
-        portNames: const PortNames(
-          inputNames: ['a', 'b'],
-          outputNames: ['out'],
-        ),
       );
 
   static List<ComponentIO> get _componentIOs => [

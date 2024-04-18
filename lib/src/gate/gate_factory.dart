@@ -10,19 +10,19 @@ class GateFactory {
   static final defaultFactory = GateFactory();
 
   final Map<String, GateDefinition> _gates = {
-    'Nand': BuiltinChipDefinition(
+    NandGate().name: BuiltinChipDefinition(
       gateBuilder: () => NandGate(),
     ),
-    'And': BuiltinChipDefinition(
+    AndGate().name: BuiltinChipDefinition(
       gateBuilder: () => AndGate(),
     ),
-    'Or': BuiltinChipDefinition(
+    OrGate().name: BuiltinChipDefinition(
       gateBuilder: () => OrGate(),
     ),
-    'Not': BuiltinChipDefinition(
+    NotGate().name: BuiltinChipDefinition(
       gateBuilder: () => NotGate(),
     ),
-    'Xor': BuiltinChipDefinition(
+    XorGate().name: BuiltinChipDefinition(
       gateBuilder: () => XorGate(),
     ),
   };

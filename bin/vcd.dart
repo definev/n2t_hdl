@@ -5,7 +5,7 @@ import 'package:n2t_hdl/src/builtin/and.dart';
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/builtin/nor.dart';
 import 'package:n2t_hdl/src/builtin/not.dart';
 import 'package:n2t_hdl/src/builtin/or.dart';
@@ -95,9 +95,11 @@ void main() {
 
 ComponentGate mux4to1() {
   return ComponentGate.flatConnections(
-    name: 'MUX',
-    inputCount: 3,
-    outputCount: 1,
+    info: GateInfo(
+      name: 'MUX',
+      inputs: ['a', 'b', 'sel'],
+      outputs: ['out'],
+    ),
     connections: [
       LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 0),
       LinkedConnection(fromIndex: 1, toComponent: 2, toIndex: 0),
@@ -130,9 +132,5 @@ ComponentGate mux4to1() {
         ],
       ),
     ],
-    portNames: const PortNames(
-      inputNames: ['a', 'b', 'sel'],
-      outputNames: ['out'],
-    ),
   );
 }

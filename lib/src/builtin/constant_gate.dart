@@ -1,18 +1,18 @@
 import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 
 class ConstantGate extends Gate {
   ConstantGate({
-    super.name = 'GND-VCC',
-    super.inputCount = 0,
-    super.outputCount = 3,
+    super.info = const GateInfo(
+      name: 'GND-VCC',
+      inputs: [],
+      outputs: ['GND', 'VCC', 'NC'],
+    ),
   });
 
   @override
-  final portNames = PortNames(
-    inputNames: [],
-    outputNames: ['GND', 'VCC', 'NC'],
-  );
+  List<bool?> update(List<bool?> input) => [null, false, true];
 
   @override
-  List<bool?> update(List<bool?> input) => [null, false, true];
+  bool needsUpdate() => false;
 }

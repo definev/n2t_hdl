@@ -35,7 +35,7 @@ class PartsGate extends GateKind {
     final ownerGateBlueprint = blueprint;
     if (ownerGateBlueprint == null) throw Exception('Blueprint not set');
 
-    final ownerGatePositions = ownerGateBlueprint.portNames.positions(LinkedConnection.parentIndex);
+    final ownerGatePositions = ownerGateBlueprint.info.positions(LinkedConnection.parentIndex);
 
     List<Connection> ownerGateConnections = [];
     List<({Gate gate, List<Connection> connections})> componentIOBuilders = [];
@@ -47,7 +47,7 @@ class PartsGate extends GateKind {
 
       final connectionTypes = part.connectionTypes;
 
-      final partGatePositions = partGate.portNames.positions(partIndex);
+      final partGatePositions = partGate.info.positions(partIndex);
 
       T resolveGatePosition<T>(
         String name, {

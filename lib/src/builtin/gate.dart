@@ -1,5 +1,6 @@
 import 'package:dart_vcd/dart_vcd.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 
@@ -27,79 +28,17 @@ extension QuickAccessGatePosition on List<GatePosition> {
   }
 }
 
-class PortNames {
-  const PortNames({
-    this.inputNames = const [],
-    this.outputNames = const [],
-  });
-
-  static PortNames fromCount({required int input, required int output}) {
-    return PortNames(
-      inputNames: List.generate(input, (i) => 'i$i'),
-      outputNames: List.generate(output, (i) => 'o$i'),
-    );
-  }
-
-  final List<String> inputNames;
-  final List<String> outputNames;
-
-  /// This connection map contains:
-  /// - connection_name : (the location of component, the index of the input, is it an input?)
-  ///
-  /// E.x:
-  /// ```
-  /// {
-  ///   'i0': (component: 0, index: 0, input: true),
-  ///   'i1': (component: 0, index: 1, input: true),
-  ///   'o0': (component: 0, index: 0, input: false),
-  /// }
-  /// ```
-  ///
-  List<GatePosition> positions(int component) {
-    return [
-      for (final (index, input) in inputNames.indexed)
-        GatePosition(
-          name: input,
-          component: component,
-          index: index,
-          input: true,
-        ),
-      for (final (index, output) in outputNames.indexed)
-        GatePosition(
-          name: output,
-          component: component,
-          index: index,
-          input: false,
-        ),
-    ];
-  }
-
-  @override
-  String toString() => 'PortNames(inputNames: $inputNames, outputNames: $outputNames)';
-
-  @override
-  operator ==(Object other) {
-    if (other is PortNames) {
-      return inputNames == other.inputNames && outputNames == other.outputNames;
-    }
-    return false;
-  }
-
-  @override
-  int get hashCode => inputNames.hashCode ^ outputNames.hashCode;
-}
-
 abstract class Gate implements VCDWritableGate {
-  const Gate({
-    required this.name,
-    required this.inputCount,
-    required this.outputCount,
-  });
+  const Gate({required this.info});
 
-  final String name;
-  final int inputCount;
-  final int outputCount;
-  PortNames get portNames;
+  final GateInfo info;
+
+  String get name => info.name;
+  int get inputCount => info.inputs.length;
+  int get outputCount => info.outputs.length;
+
+  @Deprecated('Use \'info\' insteads')
+  GateInfo get portNames => info;
 
   List<bool?> update(List<bool?> input);
 
@@ -112,12 +51,17 @@ abstract class Gate implements VCDWritableGate {
   void writeInternalSignals(VCDWriter writer, int depth, VCDSignalHandle vh) {
     return;
   }
+
+  // Does this component need an update even if the inputs haven't changed?
+  bool needsUpdate() {
+    return true;
+  }
 }
 
 extension BuiltinGate on Gate {
   List<Connection> get builtinInputConnections {
     return [
-      for (final (index, _) in portNames.inputNames.indexed)
+      for (final (index, _) in info.inputs.indexed)
         LinkedConnection(
           fromIndex: index,
           toComponent: 0,
@@ -128,7 +72,7 @@ extension BuiltinGate on Gate {
 
   List<Connection> get builtinOutputConnections {
     return [
-      for (final (index, _) in portNames.outputNames.indexed)
+      for (final (index, _) in info.outputs.indexed)
         LinkedConnection.parent(
           fromIndex: index,
           toIndex: index,

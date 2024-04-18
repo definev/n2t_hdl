@@ -1,4 +1,5 @@
 import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/gate/gate_factory.dart';
 
 sealed class GateDefinition {
@@ -20,13 +21,11 @@ class BuiltinChipDefinition extends GateDefinition {
 
 class DefinedChipDefinition extends GateDefinition {
   DefinedChipDefinition({
-    required this.name,
-    required this.portNames,
+    required this.info,
   });
 
-  final String name;
-  final PortNames portNames;
+  final GateInfo info;
 
   @override
-  Gate build(factory) => factory.getDefinition(name).build(factory);
+  Gate build(factory) => factory.getDefinition(info.name).build(factory);
 }

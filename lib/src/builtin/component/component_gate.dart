@@ -2,30 +2,25 @@ import 'package:dart_vcd/dart_vcd.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/vcd/instance_index.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 
 class ComponentGate extends Gate {
   ComponentGate({
-    required super.name,
-    required super.inputCount,
-    required super.outputCount,
+    required super.info,
     required this.connections,
     required this.componentIOs,
-    required this.portNames,
   });
 
   factory ComponentGate.flatConnections({
-    required String name,
-    required int inputCount,
-    required int outputCount,
+    required GateInfo info,
     required List<Connection> connections,
     required List<ComponentIO> componentIOs,
-    PortNames? portNames,
   }) {
     final processedConnections = List.generate(
-      inputCount,
+      info.inputs.length,
       (index) => <Connection>[],
     );
     for (final connection in connections) {
@@ -33,16 +28,9 @@ class ComponentGate extends Gate {
     }
 
     return ComponentGate(
-      name: name,
-      inputCount: inputCount,
-      outputCount: outputCount,
       connections: processedConnections,
       componentIOs: componentIOs,
-      portNames: portNames ??
-          PortNames.fromCount(
-            input: inputCount,
-            output: outputCount,
-          ),
+      info: info,
     );
   }
 
@@ -56,9 +44,6 @@ class ComponentGate extends Gate {
     output: [for (int i = 0; i < inputCount; i++) null],
     connections: connections,
   );
-
-  @override
-  final PortNames portNames;
 
   @override
   List<bool?> update(List<bool?> input) {
@@ -111,8 +96,8 @@ class ComponentGate extends Gate {
   VCDSignalHandle writeInternalComponents(VCDWriter writer, int depth) {
     final vh = VCDSignalHandle({});
 
-    final inputNames = portNames.inputNames;
-    final outputNames = portNames.outputNames;
+    final inputNames = info.inputs;
+    final outputNames = info.outputs;
 
     final writeParent = depth == 0;
     if (writeParent) {
@@ -139,8 +124,8 @@ class ComponentGate extends Gate {
     for (final component in componentIOs) {
       var instanceIndex = InstanceIndex(instance: depth, port: 0);
 
-      final inputNames = component.gate.portNames.inputNames;
-      final outputNames = component.gate.portNames.outputNames;
+      final inputNames = component.gate.info.inputs;
+      final outputNames = component.gate.info.outputs;
 
       final instanceName = '${component.gate.name}-$depth';
       writer.addModule(instanceName);
@@ -174,7 +159,6 @@ class ComponentGate extends Gate {
     bool writeParent = depth == 0;
 
     if (writeParent) {
-      // TODO: create a less error prone helper method
       var inputs = _internal.output;
       var outputs = _internal.input;
       var vi = InstanceIndex(instance: depth, port: 0);

@@ -1,4 +1,4 @@
-import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/gate/gate_blueprint.dart';
 import 'package:n2t_hdl/src/gate/gate_kind/gate_kind.dart';
 import 'package:n2t_hdl/src/gate/gate_kind/parts_gate/part_connection.dart';
@@ -127,14 +127,16 @@ class GateInterpreter extends HDLInterpreter {
   Parser chipDefinition() {
     final parser = super.chipDefinition();
     return parser.map(
-      (value) {
-        value = value as ValueNode;
-        final inputs = value.children[0] as List<String>;
-        final outputs = value.children[1] as List<String>;
-        final portNames = PortNames(inputNames: inputs, outputNames: outputs);
-        final kind = value.children[2] as GateKind;
+      (chipNode) {
+        chipNode = chipNode as ValueNode;
+        final inputs = chipNode.children[0] as List<String>;
+        final outputs = chipNode.children[1] as List<String>;
+        final kind = chipNode.children[2] as GateKind;
 
-        return GateBlueprint(name: value.value, portNames: portNames, kind: kind);
+        return GateBlueprint(
+          info: GateInfo(name: chipNode.value, inputs: inputs, outputs: outputs),
+          kind: kind,
+        );
       },
     );
   }
