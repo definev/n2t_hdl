@@ -19,6 +19,7 @@ class ComponentIO {
       this.output = [for (int i = 0; i < gate.outputCount; i++) null];
     }
   }
+
   factory ComponentIO.flatConnections({
     required Gate gate,
     required List<Connection> connections,
