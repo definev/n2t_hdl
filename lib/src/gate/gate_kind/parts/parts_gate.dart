@@ -1,4 +1,4 @@
-part of 'gate_kind.dart';
+part of '../gate_kind.dart';
 
 class GatePart {
   const GatePart({
