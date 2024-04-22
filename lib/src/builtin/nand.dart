@@ -6,19 +6,7 @@ class NandGate extends Gate {
 
   @override
   List<bool?> update(List<bool?> input) {
-    bool? x = false;
-    for (final i in input) {
-      switch (i) {
-        case false:
-          x = true;
-          break;
-        case null:
-          x = null;
-        case true:
-      }
-    }
-
-    return [x];
+    return [!(input[0]! && input[1]!)];
   }
 
   @override
