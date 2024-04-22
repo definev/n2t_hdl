@@ -14,33 +14,32 @@ class AndGate extends ComponentGate {
   });
 
   factory AndGate() => AndGate._(
-        componentIOs: _componentIOs,
+        componentIOs: [
+          ComponentIO.zero(inputCount: 2, outputCount: 1),
+          ..._componentIOs,
+        ],
         info: GateInfo(
           name: 'And',
           inputs: ['a', 'b'],
           outputs: ['out'],
         ),
-        connections: [
-          [
-            LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 0),
-          ],
-          [
-            LinkedConnection(fromIndex: 1, toComponent: 0, toIndex: 1),
-          ],
+        connections: const [
+          [LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0)],
+          [LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1)],
         ],
       );
 
   static List<ComponentIO> get _componentIOs => [
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NandGate(),
-          connections: [
-            LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 0),
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 2, toIndex: 0)],
           ],
         ),
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NotGate(),
-          connections: [
-            LinkedConnection.parent(fromIndex: 0, toIndex: 0),
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 0, toIndex: 0)],
           ],
         ),
       ];

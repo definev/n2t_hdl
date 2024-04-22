@@ -17,7 +17,7 @@ class GateBlueprint {
     kind.setBlueprint(this);
     final (connections, componentIOs) = kind.build(factory);
 
-    return ComponentGate.flatConnections(
+    return ComponentGate(
       info: info,
       connections: connections,
       componentIOs: componentIOs,

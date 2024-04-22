@@ -1,5 +1,4 @@
 import 'package:dart_vcd/dart_vcd.dart';
-import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
@@ -55,28 +54,5 @@ abstract class Gate implements VCDWritableGate {
   // Does this component need an update even if the inputs haven't changed?
   bool needsUpdate() {
     return true;
-  }
-}
-
-extension BuiltinGate on Gate {
-  List<Connection> get builtinInputConnections {
-    return [
-      for (final (index, _) in info.inputs.indexed)
-        LinkedConnection(
-          fromIndex: index,
-          toComponent: 0,
-          toIndex: index,
-        ),
-    ];
-  }
-
-  List<Connection> get builtinOutputConnections {
-    return [
-      for (final (index, _) in info.outputs.indexed)
-        LinkedConnection.parent(
-          fromIndex: index,
-          toIndex: index,
-        ),
-    ];
   }
 }

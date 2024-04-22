@@ -2,49 +2,43 @@ import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
 
 class ComponentIO {
-  ComponentIO({
-    required this.gate,
+  ComponentIO._({
     required this.connections,
-    List<bool?>? input,
-    List<bool?>? output,
+    required this.input,
+    required this.output,
+  });
+
+  factory ComponentIO.zero({
+    required int inputCount,
+    required int outputCount,
   }) {
-    if (input != null) {
-      this.input = input;
-    } else {
-      this.input = [for (int i = 0; i < gate.inputCount; i++) null];
-    }
-    if (output != null) {
-      this.output = output;
-    } else {
-      this.output = [for (int i = 0; i < gate.outputCount; i++) null];
-    }
+    return ComponentIO._(
+      connections: List.generate(inputCount, (index) => <Connection>[]),
+      input: [for (int i = 0; i < outputCount; i++) null],
+      output: [for (int i = 0; i < inputCount; i++) null],
+    );
   }
 
-  factory ComponentIO.flatConnections({
+  factory ComponentIO({
     required Gate gate,
-    required List<Connection> connections,
+    required List<List<Connection>> connections,
     List<bool?>? input,
     List<bool?>? output,
   }) {
-    final outputConnections = List.generate(
-      gate.outputCount,
-      (index) => <Connection>[],
-    );
-
-    for (final connection in connections) {
-      outputConnections[connection.fromIndex].add(connection);
-    }
-
-    return ComponentIO(
-      gate: gate,
-      connections: outputConnections,
-      input: input,
-      output: output,
-    );
+    return ComponentIO._(
+      connections: connections,
+      input: input ?? [for (int i = 0; i < gate.inputCount; i++) null],
+      output: output ?? [for (int i = 0; i < gate.outputCount; i++) null],
+    )..gate = gate;
   }
 
-  final Gate gate;
+  late Gate gate;
   List<List<Connection>> connections;
   late List<bool?> input;
   late List<bool?> output;
+
+  void update() {
+    final newOutput = gate.update(input);
+    output = newOutput;
+  }
 }

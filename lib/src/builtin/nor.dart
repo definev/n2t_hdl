@@ -17,25 +17,28 @@ class NorGate extends ComponentGate {
   });
 
   factory NorGate() => NorGate.internal(
-        componentIOs: _componentIOs,
-        connections: [
-          [
-            LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 0),
-          ],
-          [
-            LinkedConnection(fromIndex: 1, toComponent: 0, toIndex: 1),
-          ],
+        componentIOs: [
+          ComponentIO.zero(inputCount: 2, outputCount: 1),
+          ..._componentIOs,
+        ],
+        connections: const [
+          [LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0)],
+          [LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1)],
         ],
       );
 
   static List<ComponentIO> get _componentIOs => [
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: OrGate(),
-          connections: [LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 0)],
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 2, toIndex: 0)],
+          ],
         ),
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NotGate(),
-          connections: [LinkedConnection.parent(fromIndex: 0, toIndex: 0)],
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 0, toIndex: 0)],
+          ],
         ),
       ];
 }

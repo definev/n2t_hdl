@@ -1,48 +1,39 @@
 sealed class Connection {
-  const Connection({required this.fromIndex});
+  const Connection({required this.connectionIndex});
 
-  final int fromIndex;
-}
-
-class _ParentLinkedConnection extends LinkedConnection {
-  const _ParentLinkedConnection({
-    required super.fromIndex,
-    required super.toIndex,
-  }) : super(toComponent: LinkedConnection.parentIndex);
+  final int connectionIndex;
 }
 
 class LinkedConnection extends Connection {
   const LinkedConnection({
-    required super.fromIndex,
+    required super.connectionIndex,
     required this.toComponent,
     required this.toIndex,
   });
 
-  const factory LinkedConnection.parent({required int fromIndex, required int toIndex}) = _ParentLinkedConnection;
-
   final int toComponent;
   final int toIndex;
 
-  static const int parentIndex = -1;
+  static const int parentIndex = 0;
 
   bool get isParent => toComponent == parentIndex;
 
   @override
   String toString() {
-    return 'LinkedConnection(fromIndex: $fromIndex, toComponent: $toComponent, toIndex: $toIndex)';
+    return 'LinkedConnection(fromIndex: $connectionIndex, toComponent: $toComponent, toIndex: $toIndex)';
   }
 }
 
 class ConstantConnection extends Connection {
   const ConstantConnection({
+    required super.connectionIndex,
     required this.value,
-    required super.fromIndex,
   });
 
-  final bool? value;
+  final bool value;
 
   @override
   String toString() {
-    return 'ConstantConnection(value: $value, fromIndex: $fromIndex)';
+    return 'ConstantConnection(value: $value, fromIndex: $connectionIndex)';
   }
 }

@@ -35,13 +35,10 @@ void simulate(
 }
 
 void main() {
-  final repeatCount = 10;
-
   final or = OrGate();
   final and = AndGate();
   final xor = XorGate();
   final nor = NorGate();
-  final mux = mux4to1();
 
   final inputs = [
     RepeatIterable(input: [false, false], repeatCount: 4),
@@ -56,41 +53,41 @@ void main() {
     simulate(gate, inputs, writer: writer);
   }
 
-  final muxInputs = [
-    // RepeatIterable(
-    //   input: [false, false, false],
-    //   repeatCount: repeatCount,
-    // ),
-    // RepeatIterable(
-    //   input: [false, false, true],
-    //   repeatCount: repeatCount,
-    // ),
-    // RepeatIterable(
-    //   input: [false, true, false],
-    //   repeatCount: repeatCount,
-    // ),
-    RepeatIterable(
-      input: [false, true, true],
-      repeatCount: repeatCount,
-    ),
-    RepeatIterable(
-      input: [true, false, false],
-      repeatCount: repeatCount,
-    ),
-    // RepeatIterable(
-    //   input: [true, false, true],
-    //   repeatCount: repeatCount,
-    // ),
-    // RepeatIterable(
-    //   input: [true, true, false],
-    //   repeatCount: repeatCount,
-    // ),
-    // RepeatIterable(
-    //   input: [true, true, true],
-    //   repeatCount: repeatCount,
-    // ),
-  ].expand((e) => e);
-  simulate(mux, muxInputs, writer: writer);
+  // final muxInputs = [
+  //   // RepeatIterable(
+  //   //   input: [false, false, false],
+  //   //   repeatCount: repeatCount,
+  //   // ),
+  //   // RepeatIterable(
+  //   //   input: [false, false, true],
+  //   //   repeatCount: repeatCount,
+  //   // ),
+  //   // RepeatIterable(
+  //   //   input: [false, true, false],
+  //   //   repeatCount: repeatCount,
+  //   // ),
+  //   RepeatIterable(
+  //     input: [false, true, true],
+  //     repeatCount: repeatCount,
+  //   ),
+  //   RepeatIterable(
+  //     input: [true, false, false],
+  //     repeatCount: repeatCount,
+  //   ),
+  //   // RepeatIterable(
+  //   //   input: [true, false, true],
+  //   //   repeatCount: repeatCount,
+  //   // ),
+  //   // RepeatIterable(
+  //   //   input: [true, true, false],
+  //   //   repeatCount: repeatCount,
+  //   // ),
+  //   // RepeatIterable(
+  //   //   input: [true, true, true],
+  //   //   repeatCount: repeatCount,
+  //   // ),
+  // ].expand((e) => e);
+  // simulate(mux, muxInputs, writer: writer);
 }
 
 ComponentGate mux4to1() {
@@ -101,34 +98,45 @@ ComponentGate mux4to1() {
       outputs: ['out'],
     ),
     connections: [
-      LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 0),
-      LinkedConnection(fromIndex: 1, toComponent: 2, toIndex: 0),
-      LinkedConnection(fromIndex: 2, toComponent: 0, toIndex: 0),
-      LinkedConnection(fromIndex: 2, toComponent: 2, toIndex: 1),
+      LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0),
+      LinkedConnection(connectionIndex: 1, toComponent: 2, toIndex: 0),
+      LinkedConnection(connectionIndex: 2, toComponent: 0, toIndex: 0),
+      LinkedConnection(connectionIndex: 2, toComponent: 2, toIndex: 1),
     ],
     componentIOs: [
-      ComponentIO.flatConnections(
+      ComponentIO.zero(inputCount: 3, outputCount: 1),
+
+      //
+      ComponentIO(
         gate: NotGate(),
         connections: [
-          LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 1),
+          [
+            LinkedConnection(connectionIndex: 0, toComponent: 2, toIndex: 1),
+          ],
         ],
       ),
-      ComponentIO.flatConnections(
+      ComponentIO(
         gate: AndGate(),
         connections: [
-          LinkedConnection(fromIndex: 0, toComponent: 3, toIndex: 0),
+          [
+            LinkedConnection(connectionIndex: 0, toComponent: 4, toIndex: 0),
+          ],
         ],
       ),
-      ComponentIO.flatConnections(
+      ComponentIO(
         gate: AndGate(),
         connections: [
-          LinkedConnection(fromIndex: 0, toComponent: 3, toIndex: 1),
+          [
+            LinkedConnection(connectionIndex: 0, toComponent: 4, toIndex: 1),
+          ],
         ],
       ),
-      ComponentIO.flatConnections(
+      ComponentIO(
         gate: OrGate(),
         connections: [
-          LinkedConnection.parent(fromIndex: 0, toIndex: 0),
+          [
+            LinkedConnection(connectionIndex: 0, toComponent: 0, toIndex: 0),
+          ],
         ],
       ),
     ],

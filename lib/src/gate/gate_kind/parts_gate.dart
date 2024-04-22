@@ -31,19 +31,30 @@ class PartsGate extends GateKind {
   String getElementName(String value, int index) => '$value#$index';
 
   @override
-  (List<Connection>, List<ComponentIO>) build(GateFactory factory) {
+  (List<List<Connection>>, List<ComponentIO>) build(GateFactory factory) {
     final ownerGateBlueprint = blueprint;
     if (ownerGateBlueprint == null) throw Exception('Blueprint not set');
 
     final ownerGatePositions = ownerGateBlueprint.info.positions(LinkedConnection.parentIndex);
 
-    List<Connection> ownerGateConnections = [];
-    List<({Gate gate, List<Connection> connections})> componentIOBuilders = [];
+    List<List<Connection>> ownerGateConnections = [
+      for (var index = 0; index < ownerGateBlueprint.info.inputs.length; index++) <Connection>[],
+    ];
+    List<ComponentIO> componentIOs = [
+      ComponentIO.zero(
+          inputCount: ownerGateBlueprint.info.inputs.length, outputCount: ownerGateBlueprint.info.outputs.length),
+    ];
 
     Map<String, GatePosition> temporaryGatePositions = {};
 
-    for (final (partIndex, part) in parts.indexed) {
-      final (partGate, partGateConnections) = (factory.build(part.name), <Connection>[]);
+    for (var (partIndex, part) in parts.indexed) {
+      // The first part is the owner gate.
+      partIndex = partIndex + 1;
+
+      final partGate = factory.build(part.name);
+      final partConnections = [
+        for (var index = 0; index < partGate.outputCount; index++) <Connection>[],
+      ];
 
       final connectionTypes = part.connectionTypes;
 
@@ -72,7 +83,12 @@ class PartsGate extends GateKind {
           at,
           onPartGatePosition: (position) {
             if (position.input) {
-              partGateConnections.add(ConstantConnection(value: value, fromIndex: position.index));
+              partConnections[position.index].add(
+                ConstantConnection(
+                  connectionIndex: position.index,
+                  value: value,
+                ),
+              );
             } else {
               throw ArgumentError('Invalid part connection: $at');
             }
@@ -113,7 +129,12 @@ class PartsGate extends GateKind {
 
         for (final position in positions) {
           if (position.input) {
-            partGateConnections.add(ConstantConnection(value: value, fromIndex: position.index));
+            partConnections[position.index].add(
+              ConstantConnection(
+                connectionIndex: position.index,
+                value: value,
+              ),
+            );
           } else {
             throw ArgumentError('Invalid part connection: $at');
           }
@@ -129,16 +150,17 @@ class PartsGate extends GateKind {
         resolveGatePosition(
           right,
           onOwnerGatePosition: (rightPosition) => switch ('') {
-            _ when leftPosition.input && rightPosition.input => ownerGateConnections.add(
+            _ when leftPosition.input && rightPosition.input => ownerGateConnections[rightPosition.index].add(
                 LinkedConnection(
-                  fromIndex: rightPosition.index,
+                  connectionIndex: rightPosition.index,
                   toComponent: leftPosition.component,
                   toIndex: leftPosition.index,
                 ),
               ),
-            _ when leftPosition.input == false && rightPosition.input == false => partGateConnections.add(
+            _ when leftPosition.input == false && rightPosition.input == false =>
+              partConnections[leftPosition.index].add(
                 LinkedConnection(
-                  fromIndex: leftPosition.index,
+                  connectionIndex: leftPosition.index,
                   toComponent: rightPosition.component,
                   toIndex: rightPosition.index,
                 ),
@@ -147,15 +169,15 @@ class PartsGate extends GateKind {
           },
           onTemporaryGatePosition: (rightPosition) => switch ('') {
             _ when leftPosition.input && rightPosition.input == false => () {
-                final temporaryPart = componentIOBuilders[rightPosition.component];
-                temporaryPart.connections.add(
+                final temporaryPart = componentIOs[rightPosition.component];
+                temporaryPart.connections[rightPosition.index].add(
                   LinkedConnection(
-                    fromIndex: rightPosition.index,
+                    connectionIndex: rightPosition.index,
                     toComponent: leftPosition.component,
                     toIndex: leftPosition.index,
                   ),
                 );
-                componentIOBuilders[rightPosition.component] = temporaryPart;
+                componentIOs[rightPosition.component] = temporaryPart;
               }(),
             _ => throw ArgumentError('Invalid part connection: $right'),
           },
@@ -244,9 +266,9 @@ class PartsGate extends GateKind {
               for (int index = 0; index < leftPositions.length; index += 1) {
                 final leftPosition = leftPositions[index];
                 final rightPosition = rightPositions[index];
-                ownerGateConnections.add(
+                ownerGateConnections[rightPosition.index].add(
                   LinkedConnection(
-                    fromIndex: rightPosition.index,
+                    connectionIndex: rightPosition.index,
                     toComponent: leftPosition.component,
                     toIndex: leftPosition.index,
                   ),
@@ -257,9 +279,9 @@ class PartsGate extends GateKind {
               for (int index = 0; index < leftPositions.length; index += 1) {
                 final leftPosition = leftPositions[index];
                 final rightPosition = rightPositions[index];
-                partGateConnections.add(
+                partConnections[leftPosition.index].add(
                   LinkedConnection(
-                    fromIndex: leftPosition.index,
+                    connectionIndex: leftPosition.index,
                     toComponent: rightPosition.component,
                     toIndex: rightPosition.index,
                   ),
@@ -270,15 +292,15 @@ class PartsGate extends GateKind {
               for (int index = 0; index < leftPositions.length; index += 1) {
                 final leftPosition = leftPositions[index];
                 final rightPosition = rightPositions[index];
-                final temporaryPart = componentIOBuilders[rightPosition.component];
-                temporaryPart.connections.add(
+                final temporaryPart = componentIOs[rightPosition.component];
+                temporaryPart.connections[rightPosition.index].add(
                   LinkedConnection(
-                    fromIndex: rightPosition.index,
+                    connectionIndex: rightPosition.index,
                     toComponent: leftPosition.component,
                     toIndex: leftPosition.index,
                   ),
                 );
-                componentIOBuilders[rightPosition.component] = temporaryPart;
+                componentIOs[rightPosition.component] = temporaryPart;
               }
             }(),
           _ => throw ArgumentError('Invalid part connection: $right'),
@@ -343,9 +365,9 @@ class PartsGate extends GateKind {
               for (int index = 0; index < leftPositions.length; index += 1) {
                 final leftPosition = leftPositions[index];
                 final rightPosition = rightPositions[index];
-                ownerGateConnections.add(
+                ownerGateConnections[rightPosition.index].add(
                   LinkedConnection(
-                    fromIndex: rightPosition.index,
+                    connectionIndex: rightPosition.index,
                     toComponent: leftPosition.component,
                     toIndex: leftPosition.index,
                   ),
@@ -356,9 +378,9 @@ class PartsGate extends GateKind {
               for (int index = 0; index < leftPositions.length; index += 1) {
                 final leftPosition = leftPositions[index];
                 final rightPosition = rightPositions[index];
-                partGateConnections.add(
+                partConnections[leftPosition.index].add(
                   LinkedConnection(
-                    fromIndex: leftPosition.index,
+                    connectionIndex: leftPosition.index,
                     toComponent: rightPosition.component,
                     toIndex: rightPosition.index,
                   ),
@@ -369,15 +391,15 @@ class PartsGate extends GateKind {
               for (int index = 0; index < leftPositions.length; index += 1) {
                 final leftPosition = leftPositions[index];
                 final rightPosition = rightPositions[index];
-                final temporaryPart = componentIOBuilders[rightPosition.component];
-                temporaryPart.connections.add(
+                final temporaryPart = componentIOs[rightPosition.component];
+                temporaryPart.connections[rightPosition.index].add(
                   LinkedConnection(
-                    fromIndex: rightPosition.index,
+                    connectionIndex: rightPosition.index,
                     toComponent: leftPosition.component,
                     toIndex: leftPosition.index,
                   ),
                 );
-                componentIOBuilders[rightPosition.component] = temporaryPart;
+                componentIOs[rightPosition.component] = temporaryPart;
               }
             }(),
           _ => throw ArgumentError('Invalid part connection: $right'),
@@ -419,12 +441,9 @@ class PartsGate extends GateKind {
         }
       }
 
-      componentIOBuilders.add((gate: partGate, connections: partGateConnections));
+      componentIOs.add(ComponentIO(gate: partGate, connections: partConnections));
     }
 
-    return (
-      ownerGateConnections,
-      componentIOBuilders.map((e) => ComponentIO.flatConnections(gate: e.gate, connections: e.connections)).toList(),
-    );
+    return (ownerGateConnections, componentIOs);
   }
 }

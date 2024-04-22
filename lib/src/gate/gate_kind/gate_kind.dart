@@ -1,6 +1,7 @@
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/gate/gate_blueprint.dart';
 import 'package:n2t_hdl/src/gate/gate_factory.dart';
 import 'package:n2t_hdl/src/gate/gate_kind/parts_gate/part_connection.dart';
@@ -16,7 +17,7 @@ sealed class GateKind {
     this.blueprint = blueprint;
   }
 
-  (List<Connection>, List<ComponentIO>) build(GateFactory factory);
+  (List<List<Connection>>, List<ComponentIO>) build(GateFactory factory);
 }
 
 

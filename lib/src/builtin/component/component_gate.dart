@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:dart_vcd/dart_vcd.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
@@ -7,12 +8,22 @@ import 'package:n2t_hdl/src/vcd/instance_index.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 
+const listEquality = ListEquality();
+
+var debugComponentGate = false;
+void debugComponentGatePrint(String message) {
+  if (debugComponentGate) print(message);
+}
+
 class ComponentGate extends Gate {
   ComponentGate({
     required super.info,
     required this.connections,
     required this.componentIOs,
-  });
+  }) {
+    componentIOs.first.gate = this;
+    componentIOs.first.connections = connections;
+  }
 
   factory ComponentGate.flatConnections({
     required GateInfo info,
@@ -24,7 +35,7 @@ class ComponentGate extends Gate {
       (index) => <Connection>[],
     );
     for (final connection in connections) {
-      processedConnections[connection.fromIndex].add(connection);
+      processedConnections[connection.connectionIndex].add(connection);
     }
 
     return ComponentGate(
@@ -36,60 +47,100 @@ class ComponentGate extends Gate {
 
   final List<List<Connection>> connections;
   final List<ComponentIO> componentIOs;
-  late final ComponentIO _internal = ComponentIO(
-    gate: this,
-    // Hacking around the fact that the input and output are flipped inside the
-    // internal component
-    input: [for (int i = 0; i < outputCount; i++) null],
-    output: [for (int i = 0; i < inputCount; i++) null],
-    connections: connections,
-  );
+
+  late final List<bool> componentIOsNeedUpdate = List.filled(componentIOs.length, true);
+
+  @override
+  bool needsUpdate() {
+    componentIOsNeedUpdate[0] = componentIOsNeedUpdate.skip(1).any((dirty) => dirty == true);
+    return componentIOsNeedUpdate[0];
+  }
+
+  ComponentIO get _internal => componentIOs.first;
+  List<bool?> get output => _internal.input;
 
   @override
   List<bool?> update(List<bool?> input) {
+    debugComponentGatePrint('Updating component: $name');
+
     _propagateInput(input);
-    // Update components
-    _updateComponents();
-    // Propagate internal signals
-    _propagateSignals();
-    // Return the component output
-    return _internal.input;
+    for (var i = 0; i < componentIOs.length - 1; i++) {
+      // Update components
+      _updateComponents();
+      // Propagate internal signals
+      _propagateSignals();
+      // Return the component output
+    }
+
+    return output;
   }
 
-  void _propagateComponentIO(ComponentIO componentIO) {
+  void _propagate(int componentIOIndex) {
+    debugComponentGatePrint('| Propagating component: $componentIOIndex');
+    final componentIO = componentIOs[componentIOIndex];
     for (final (outputIndex, compConnections) in componentIO.connections.indexed) {
-      final value = componentIO.output[outputIndex];
-
       for (final connection in compConnections) {
         switch (connection) {
-          case LinkedConnection(:final toComponent, :final toIndex, :final isParent):
-            final io = switch (isParent) {
-              true => _internal,
-              _ => componentIOs[toComponent],
-            };
-            io.input[toIndex] = value;
-          case ConstantConnection(:final value, :final fromIndex):
-            _internal.input[fromIndex] = value;
+          case LinkedConnection(
+              // :final connectionIndex,
+              :final toComponent,
+              :final toIndex,
+            ):
+            debugComponentGatePrint('| LINKED CONNECTION |');
+            debugComponentGatePrint('| Propagating to: $toComponent, $toIndex');
+            final targetComponentIO = componentIOs[toComponent];
+
+            final oldValue = targetComponentIO.input[toIndex];
+            final value = componentIO.output[outputIndex];
+            if (toComponent == 0) {
+              debugComponentGatePrint('| Propagating to internal component');
+            } else {
+              debugComponentGatePrint('| Propagating to component: $toComponent');
+            }
+            debugComponentGatePrint('| Old value: $oldValue, New value: $value');
+
+            if (oldValue != null && oldValue == value) {
+              debugComponentGatePrint('| Value duplicated, skipping propagation');
+              continue;
+            }
+
+            targetComponentIO.input[toIndex] = value;
+            componentIOsNeedUpdate[toComponent] = true;
+          case ConstantConnection(:final value):
+            debugComponentGatePrint('| CONSTANT CONNECTION |');
+            debugComponentGatePrint('| Propagating constant value: $value at index: $outputIndex');
+            componentIO.input[outputIndex] = value;
         }
       }
     }
   }
 
   void _propagateSignals() {
-    for (final componentIO in componentIOs) {
-      _propagateComponentIO(componentIO);
+    for (var index = 1; index < componentIOs.length; index++) {
+      _propagate(index);
+    }
+  }
+
+  void _updateComponents() {
+    debugComponentGatePrint('| Updating components');
+    for (var index = 1; index < componentIOs.length; index++) {
+      final componentIO = componentIOs[index];
+      if (componentIOsNeedUpdate[index] == false) {
+        debugComponentGatePrint('| Component $index does not need update');
+        continue;
+      }
+      debugComponentGatePrint('| Updating component: $index');
+      componentIO.update();
+      componentIOsNeedUpdate[index] = componentIO.gate.needsUpdate();
+      debugComponentGatePrint('| Component $index needs update: ${componentIOsNeedUpdate[index]}');
     }
   }
 
   void _propagateInput(List<bool?> input) {
+    debugComponentGatePrint('| Propagating input: $input');
+    // The input is the output when seen from inside
     _internal.output = input;
-    _propagateComponentIO(_internal);
-  }
-
-  void _updateComponents() {
-    for (final component in componentIOs) {
-      component.output = component.gate.update(component.input);
-    }
+    _propagate(0);
   }
 
   @override
@@ -121,7 +172,7 @@ class ComponentGate extends Gate {
       depth += 1;
     }
 
-    for (final component in componentIOs) {
+    for (final component in componentIOs.skip(1)) {
       var instanceIndex = InstanceIndex(instance: depth, port: 0);
 
       final inputNames = component.gate.info.inputs;
@@ -166,7 +217,7 @@ class ComponentGate extends Gate {
       depth += 1;
     }
 
-    for (final component in componentIOs) {
+    for (final component in componentIOs.skip(1)) {
       var inputs = component.input;
       var outputs = component.output;
       final vi = InstanceIndex(instance: depth, port: 0);

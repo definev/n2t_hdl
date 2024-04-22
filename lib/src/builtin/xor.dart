@@ -16,43 +16,48 @@ class XorGate extends ComponentGate {
   });
 
   factory XorGate() => XorGate.internal(
-        componentIOs: _componentIOs,
+        componentIOs: [
+          ComponentIO.zero(inputCount: 2, outputCount: 1),
+          ..._componentIOs,
+        ],
         connections: [
           [
-            LinkedConnection(fromIndex: 0, toComponent: 0, toIndex: 0),
-            LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 0),
+            LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0),
+            LinkedConnection(connectionIndex: 0, toComponent: 2, toIndex: 0),
           ],
           [
-            LinkedConnection(fromIndex: 1, toComponent: 0, toIndex: 1),
-            LinkedConnection(fromIndex: 1, toComponent: 2, toIndex: 1),
+            LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1),
+            LinkedConnection(connectionIndex: 1, toComponent: 3, toIndex: 1),
           ],
         ],
       );
 
   static List<ComponentIO> get _componentIOs => [
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NandGate(),
-          connections: [
-            LinkedConnection(fromIndex: 0, toComponent: 1, toIndex: 1),
-            LinkedConnection(fromIndex: 0, toComponent: 2, toIndex: 0),
+          connections: const [
+            [
+              LinkedConnection(connectionIndex: 0, toComponent: 2, toIndex: 1),
+              LinkedConnection(connectionIndex: 0, toComponent: 3, toIndex: 0),
+            ],
           ],
         ),
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NandGate(),
-          connections: [
-            LinkedConnection(fromIndex: 0, toComponent: 3, toIndex: 0),
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 4, toIndex: 0)],
           ],
         ),
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NandGate(),
-          connections: [
-            LinkedConnection(fromIndex: 0, toComponent: 3, toIndex: 1),
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 4, toIndex: 1)],
           ],
         ),
-        ComponentIO.flatConnections(
+        ComponentIO(
           gate: NandGate(),
-          connections: [
-            LinkedConnection.parent(fromIndex: 0, toIndex: 0),
+          connections: const [
+            [LinkedConnection(connectionIndex: 0, toComponent: 0, toIndex: 0)],
           ],
         ),
       ];
