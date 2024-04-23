@@ -13,7 +13,7 @@ void main() async {
   debugComponentGate = false;
   final repeatCount = 1;
 
-  final cnot = File('data/alu.hdl').readAsStringSync();
+  final cnot = File('data/mux.hdl').readAsStringSync();
   final interpreter = GateInterpreter().build();
   final result = interpreter.parse(cnot).value as List<GateBlueprint>;
   final firstGate = result.first;
