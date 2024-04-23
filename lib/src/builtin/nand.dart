@@ -6,6 +6,7 @@ class NandGate extends Gate {
 
   @override
   List<bool?> update(List<bool?> input) {
+    if (input[0] == null || input[1] == null) return [null];
     return [!(input[0]! && input[1]!)];
   }
 
