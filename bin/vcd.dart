@@ -91,17 +91,23 @@ void main() {
 }
 
 ComponentGate mux4to1() {
-  return ComponentGate.flatConnections(
+  return ComponentGate(
     info: GateInfo(
       name: 'MUX',
       inputs: ['a', 'b', 'sel'],
       outputs: ['out'],
     ),
     connections: [
-      LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0),
-      LinkedConnection(connectionIndex: 1, toComponent: 2, toIndex: 0),
-      LinkedConnection(connectionIndex: 2, toComponent: 0, toIndex: 0),
-      LinkedConnection(connectionIndex: 2, toComponent: 2, toIndex: 1),
+      [
+        LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0),
+      ],
+      [
+        LinkedConnection(connectionIndex: 1, toComponent: 2, toIndex: 0),
+      ],
+      [
+        LinkedConnection(connectionIndex: 2, toComponent: 0, toIndex: 0),
+        LinkedConnection(connectionIndex: 2, toComponent: 2, toIndex: 1),
+      ],
     ],
     componentIOs: [
       ComponentIO.zero(inputCount: 3, outputCount: 1),

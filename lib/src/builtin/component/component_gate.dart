@@ -3,7 +3,6 @@ import 'package:dart_vcd/dart_vcd.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
 import 'package:n2t_hdl/src/vcd/instance_index.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
@@ -23,26 +22,6 @@ class ComponentGate extends Gate {
   }) {
     componentIOs.first.gate = this;
     componentIOs.first.connections = connections;
-  }
-
-  factory ComponentGate.flatConnections({
-    required GateInfo info,
-    required List<Connection> connections,
-    required List<ComponentIO> componentIOs,
-  }) {
-    final processedConnections = List.generate(
-      info.inputs.length,
-      (index) => <Connection>[],
-    );
-    for (final connection in connections) {
-      processedConnections[connection.connectionIndex].add(connection);
-    }
-
-    return ComponentGate(
-      connections: processedConnections,
-      componentIOs: componentIOs,
-      info: info,
-    );
   }
 
   final List<List<Connection>> connections;
