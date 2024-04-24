@@ -1,5 +1,5 @@
 import 'package:dart_vcd/dart_vcd.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';
 

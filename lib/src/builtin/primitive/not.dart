@@ -1,8 +1,8 @@
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
-import 'package:n2t_hdl/src/builtin/nand.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
+import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
 
 class NotGate extends ComponentGate {
   NotGate.internal({

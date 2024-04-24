@@ -1,5 +1,5 @@
-import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
 
 class NandGate extends Gate {
   NandGate() : super(info: GateInfo(name: 'Nand', inputs: ['a', 'b'], outputs: ['out']));

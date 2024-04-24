@@ -1,4 +1,4 @@
-import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate.dart';
 
 class GateInfo {
   const GateInfo({

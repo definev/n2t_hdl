@@ -1,28 +1,26 @@
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
-import 'package:n2t_hdl/src/builtin/nand.dart';
-import 'package:n2t_hdl/src/builtin/not.dart';
+import 'package:n2t_hdl/src/builtin/component/connection.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
+import 'package:n2t_hdl/src/builtin/primitive/not.dart';
+import 'package:n2t_hdl/src/builtin/primitive/or.dart';
 
-import 'component/connection.dart';
-
-class AndGate extends ComponentGate {
-  AndGate._({
-    required super.info,
+class NorGate extends ComponentGate {
+  NorGate.internal({
+    super.info = const GateInfo(
+      name: 'Nor',
+      inputs: ['a', 'b'],
+      outputs: ['out'],
+    ),
     required super.connections,
     required super.componentIOs,
   });
 
-  factory AndGate() => AndGate._(
+  factory NorGate() => NorGate.internal(
         componentIOs: [
           ComponentIO.zero(inputCount: 2, outputCount: 1),
           ..._componentIOs,
         ],
-        info: GateInfo(
-          name: 'And',
-          inputs: ['a', 'b'],
-          outputs: ['out'],
-        ),
         connections: const [
           [LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0)],
           [LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1)],
@@ -31,7 +29,7 @@ class AndGate extends ComponentGate {
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(
-          gate: NandGate(),
+          gate: OrGate(),
           connections: const [
             [LinkedConnection(connectionIndex: 0, toComponent: 2, toIndex: 0)],
           ],
