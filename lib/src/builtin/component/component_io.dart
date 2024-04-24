@@ -1,5 +1,5 @@
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate.dart';
 
 class ComponentIO {
   ComponentIO._({

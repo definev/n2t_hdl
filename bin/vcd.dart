@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:dart_vcd/dart_vcd.dart';
-import 'package:n2t_hdl/src/builtin/and.dart';
 import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
-import 'package:n2t_hdl/src/builtin/nor.dart';
-import 'package:n2t_hdl/src/builtin/not.dart';
-import 'package:n2t_hdl/src/builtin/or.dart';
-import 'package:n2t_hdl/src/builtin/xor.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
+import 'package:n2t_hdl/src/builtin/primitive/and.dart';
+import 'package:n2t_hdl/src/builtin/primitive/nor.dart';
+import 'package:n2t_hdl/src/builtin/primitive/not.dart';
+import 'package:n2t_hdl/src/builtin/primitive/or.dart';
+import 'package:n2t_hdl/src/builtin/primitive/xor.dart';
 import 'package:n2t_hdl/src/utils/repeat_iterable.dart';
 import 'package:n2t_hdl/src/vcd/run_simulation.dart';
 

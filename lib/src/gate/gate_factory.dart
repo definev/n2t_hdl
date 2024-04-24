@@ -1,9 +1,9 @@
-import 'package:n2t_hdl/src/builtin/and.dart';
-import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/builtin/nand.dart';
-import 'package:n2t_hdl/src/builtin/not.dart';
-import 'package:n2t_hdl/src/builtin/or.dart';
-import 'package:n2t_hdl/src/builtin/xor.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate.dart';
+import 'package:n2t_hdl/src/builtin/primitive/and.dart';
+import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
+import 'package:n2t_hdl/src/builtin/primitive/not.dart';
+import 'package:n2t_hdl/src/builtin/primitive/or.dart';
+import 'package:n2t_hdl/src/builtin/primitive/xor.dart';
 import 'package:n2t_hdl/src/gate/gate_definition.dart';
 
 class GateFactory {

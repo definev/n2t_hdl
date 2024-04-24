@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_vcd/dart_vcd.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate.dart';
 import 'package:n2t_hdl/src/vcd/instance_index.dart';
 import 'package:n2t_hdl/src/vcd/vcd_signal_handle.dart';
 import 'package:n2t_hdl/src/vcd/vcd_writable_gate.dart';

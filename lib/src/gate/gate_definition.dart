@@ -1,5 +1,5 @@
-import 'package:n2t_hdl/src/builtin/gate.dart';
-import 'package:n2t_hdl/src/builtin/gate_info.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate.dart';
+import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
 import 'package:n2t_hdl/src/gate/gate_factory.dart';
 
 sealed class GateDefinition {
