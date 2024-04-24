@@ -16,8 +16,6 @@ class LinkedConnection extends Connection {
 
   static const int parentIndex = 0;
 
-  bool get isParent => toComponent == parentIndex;
-
   @override
   String toString() {
     return 'LinkedConnection(fromIndex: $connectionIndex, toComponent: $toComponent, toIndex: $toIndex)';
