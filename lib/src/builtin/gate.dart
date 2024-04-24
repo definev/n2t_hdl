@@ -36,9 +36,6 @@ abstract class Gate implements VCDWritableGate {
   int get inputCount => info.inputs.length;
   int get outputCount => info.outputs.length;
 
-  @Deprecated('Use \'info\' insteads')
-  GateInfo get portNames => info;
-
   List<bool?> update(List<bool?> input);
 
   @override
