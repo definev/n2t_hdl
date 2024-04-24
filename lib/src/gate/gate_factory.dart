@@ -10,21 +10,11 @@ class GateFactory {
   static final defaultFactory = GateFactory();
 
   final Map<String, GateDefinition> _gates = {
-    NandGate().name: BuiltinChipDefinition(
-      gateBuilder: () => NandGate(),
-    ),
-    AndGate().name: BuiltinChipDefinition(
-      gateBuilder: () => AndGate(),
-    ),
-    OrGate().name: BuiltinChipDefinition(
-      gateBuilder: () => OrGate(),
-    ),
-    NotGate().name: BuiltinChipDefinition(
-      gateBuilder: () => NotGate(),
-    ),
-    XorGate().name: BuiltinChipDefinition(
-      gateBuilder: () => XorGate(),
-    ),
+    NandGate.gateName: BuiltinChipDefinition(gateBuilder: NandGate.new),
+    AndGate.gateName: BuiltinChipDefinition(gateBuilder: AndGate.new),
+    OrGate.gateName: BuiltinChipDefinition(gateBuilder: OrGate.new),
+    NotGate.gateName: BuiltinChipDefinition(gateBuilder: NotGate.new),
+    XorGate.gateName: BuiltinChipDefinition(gateBuilder: XorGate.new),
   };
 
   Gate build(String name) {

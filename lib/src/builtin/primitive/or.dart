@@ -33,6 +33,8 @@ class OrGate extends ComponentGate {
         ],
       );
 
+  static const gateName = 'Or';
+
   static const _defaultGateInfo = GateInfo(
     name: 'Or',
     inputs: ['a', 'b'],

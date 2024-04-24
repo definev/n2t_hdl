@@ -28,6 +28,8 @@ class AndGate extends ComponentGate {
           [LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1)],
         ],
       );
+  
+  static const gateName = 'And';
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(

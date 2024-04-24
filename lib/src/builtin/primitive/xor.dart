@@ -31,6 +31,8 @@ class XorGate extends ComponentGate {
           ],
         ],
       );
+  
+  static const gateName = 'Xor';
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(

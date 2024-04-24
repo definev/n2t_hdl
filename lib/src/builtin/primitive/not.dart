@@ -27,6 +27,8 @@ class NotGate extends ComponentGate {
           ],
         ],
       );
+  
+  static const gateName = 'Not';
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(
