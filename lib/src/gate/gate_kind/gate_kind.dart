@@ -17,7 +17,7 @@ sealed class GateKind {
     this.blueprint = blueprint;
   }
 
-  (List<List<Connection>>, List<ComponentIO>) build(GateFactory factory);
+  (List<List<Connection>>, List<ComponentIOBlueprint>) build(GateFactory factory);
 }
 
 

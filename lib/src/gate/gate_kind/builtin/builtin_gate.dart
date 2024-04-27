@@ -8,7 +8,7 @@ class BuiltinGate extends GateKind {
   final String name;
 
   @override
-  (List<List<Connection>>, List<ComponentIO>) build(GateFactory factory) {
+  (List<List<Connection>>, List<ComponentIOBlueprint>) build(GateFactory factory) {
     final gate = factory.build(name);
 
     final GateInfo(:inputs, :outputs) = gate.info;
@@ -25,8 +25,8 @@ class BuiltinGate extends GateKind {
           ],
       ],
       [
-        ComponentIO(
-          gate: gate,
+        ComponentIOBlueprint.connection(
+          gateBuilder: () => gate,
           connections: [
             for (var index = 0; index < outputs.length; index++)
               [

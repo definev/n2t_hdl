@@ -20,7 +20,7 @@ class GateBlueprint {
     return ComponentGate(
       info: info,
       connections: connections,
-      componentIOs: componentIOs,
+      componentIOs: componentIOs.map((e) => e.build()).toList(),
     );
   }
 }

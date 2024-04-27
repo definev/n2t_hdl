@@ -21,10 +21,6 @@ class GateFactory {
     return _gates[name]!.build(this);
   }
 
-  GateDefinition getDefinition(String name) {
-    return _gates[name]!;
-  }
-
   void addChip(String name, GateDefinition definition) {
     _gates[name] = definition;
   }

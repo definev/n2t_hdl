@@ -31,7 +31,7 @@ class PartsGate extends GateKind {
   String getElementName(String value, int index) => '$value#$index';
 
   @override
-  (List<List<Connection>>, List<ComponentIO>) build(GateFactory factory) {
+  (List<List<Connection>>, List<ComponentIOBlueprint>) build(GateFactory factory) {
     final ownerGateBlueprint = blueprint;
     if (ownerGateBlueprint == null) throw Exception('Blueprint not set');
 
@@ -40,9 +40,11 @@ class PartsGate extends GateKind {
     List<List<Connection>> ownerGateConnections = [
       for (var index = 0; index < ownerGateBlueprint.info.inputs.length; index++) <Connection>[],
     ];
-    List<ComponentIO> componentIOs = [
-      ComponentIO.zero(
-          inputCount: ownerGateBlueprint.info.inputs.length, outputCount: ownerGateBlueprint.info.outputs.length),
+    List<ComponentIOBlueprint> componentIOs = [
+      ComponentIOBlueprint.zero(
+        inputCount: ownerGateBlueprint.info.inputs.length,
+        outputCount: ownerGateBlueprint.info.outputs.length,
+      ),
     ];
 
     Map<String, GatePosition> temporaryGatePositions = {};
@@ -441,7 +443,7 @@ class PartsGate extends GateKind {
         }
       }
 
-      componentIOs.add(ComponentIO(gate: partGate, connections: partConnections));
+      componentIOs.add(ComponentIOBlueprint.connection(gateBuilder: () => partGate, connections: partConnections));
     }
 
     return (ownerGateConnections, componentIOs);
