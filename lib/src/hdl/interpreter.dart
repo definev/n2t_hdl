@@ -1,4 +1,4 @@
-import 'package:n2t_hdl/n2t_hdl.dart';
+import 'package:n2t_hdl/src/hdl/grammar.dart';
 import 'package:petitparser/petitparser.dart';
 
 import 'node.dart';

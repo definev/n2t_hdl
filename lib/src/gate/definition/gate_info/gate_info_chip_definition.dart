@@ -1,4 +1,4 @@
-part of '_gate_definition.dart';
+part of '../_gate_definition.dart';
 
 class GateInfoChipDefinition extends GateDefinition {
   const GateInfoChipDefinition({
