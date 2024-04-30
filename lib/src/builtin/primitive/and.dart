@@ -18,18 +18,19 @@ class AndGate extends ComponentGate {
           ComponentIO.zero(inputCount: 2, outputCount: 1),
           ..._componentIOs,
         ],
-        info: GateInfo(
-          name: 'And',
-          inputs: ['a', 'b'],
-          outputs: ['out'],
-        ),
+        info: gateInfo,
         connections: const [
           [LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0)],
           [LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1)],
         ],
       );
-  
+
   static const gateName = 'And';
+  static const gateInfo = GateInfo(
+    name: gateName,
+    inputs: ['a', 'b'],
+    outputs: ['out'],
+  );
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(
