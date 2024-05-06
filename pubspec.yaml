@@ -9,7 +9,7 @@ environment:
 # Add regular dependencies here.
 dependencies:
   petitparser: ^6.0.2
-  dart_vcd: ^1.0.3
+  dart_vcd: ^1.0.4
   collection: ^1.18.0
   # path: ^1.8.0
 
