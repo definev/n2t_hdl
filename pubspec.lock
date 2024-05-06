@@ -77,10 +77,10 @@ packages:
     dependency: "direct main"
     description:
       name: dart_vcd
-      sha256: d4339c9d0bb0e6baa73df792c3749a146c45508d7eec18a49c1d4f6aa966a6a5
+      sha256: "5c198e526ac66f203cab52bf8ce7995a7bd35afde783e30bf43c5eb31278df05"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   file:
     dependency: transitive
     description:
