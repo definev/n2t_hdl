@@ -6,11 +6,7 @@ import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
 
 class OrGate extends ComponentGate {
   OrGate.internal({
-    super.info = const GateInfo(
-      name: 'Or',
-      inputs: ['a', 'b'],
-      outputs: ['out'],
-    ),
+    super.info = gateInfo,
     required super.connections,
     required super.componentIOs,
   });
@@ -20,7 +16,7 @@ class OrGate extends ComponentGate {
           ComponentIO.zero(inputCount: 2, outputCount: 1),
           ..._componentIOs,
         ],
-        info: _defaultGateInfo,
+        info: gateInfo,
         connections: const [
           [
             LinkedConnection(connectionIndex: 0, toComponent: 1, toIndex: 0),
@@ -35,7 +31,7 @@ class OrGate extends ComponentGate {
 
   static const gateName = 'Or';
 
-  static const _defaultGateInfo = GateInfo(
+  static const gateInfo = GateInfo(
     name: 'Or',
     inputs: ['a', 'b'],
     outputs: ['out'],

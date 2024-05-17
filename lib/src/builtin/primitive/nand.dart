@@ -2,11 +2,12 @@ import 'package:n2t_hdl/src/builtin/gate/gate.dart';
 import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
 
 class NandGate extends Gate {
-  NandGate() : super(info: GateInfo(name: 'Nand', inputs: ['a', 'b'], outputs: ['out']));
+  NandGate() : super(info: gateInfo);
 
   static NandGate gateBuilder() => NandGate();
 
   static const gateName = 'Nand';
+  static const gateInfo = GateInfo(name: 'Nand', inputs: ['a', 'b'], outputs: ['out']);
 
   @override
   List<bool?> update(List<bool?> input) {

@@ -6,11 +6,7 @@ import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
 
 class NotGate extends ComponentGate {
   NotGate.internal({
-    super.info = const GateInfo(
-      name: 'Not',
-      inputs: ['in'],
-      outputs: ['out'],
-    ),
+    super.info = gateInfo,
     required super.connections,
     required super.componentIOs,
   });
@@ -29,6 +25,12 @@ class NotGate extends ComponentGate {
       );
   
   static const gateName = 'Not';
+
+  static const gateInfo = GateInfo(
+    name: 'Not',
+    inputs: ['in'],
+    outputs: ['out'],
+  );
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(
