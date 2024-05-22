@@ -30,6 +30,7 @@ class PartsGate extends GateKind {
 
   String getElementName(String value, int index) => '$value#$index';
 
+  /// TODO: Optimize List<Connection> by caching the connections.
   @override
   (List<List<Connection>>, List<ComponentIOBlueprint>) build(GateFactory factory) {
     final ownerGateBlueprint = blueprint;
