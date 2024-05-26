@@ -5,8 +5,12 @@ class ConstantGate extends Gate {
   ConstantGate({
     super.info = const GateInfo(
       name: 'GND-VCC',
-      inputs: [],
-      outputs: ['GND', 'VCC', 'NC'],
+      inputVariables: [],
+      outputVariables: [
+        BitVariable(name: 'GND'),
+        BitVariable(name: 'VCC'),
+        BitVariable(name: 'NC'),
+      ],
     ),
   });
 

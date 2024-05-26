@@ -28,8 +28,13 @@ class AndGate extends ComponentGate {
   static const gateName = 'And';
   static const gateInfo = GateInfo(
     name: gateName,
-    inputs: ['a', 'b'],
-    outputs: ['out'],
+    inputVariables: [
+      BitVariable(name: 'a'),
+      BitVariable(name: 'b'),
+    ],
+    outputVariables: [
+      BitVariable(name: 'out'),
+    ],
   );
 
   static List<ComponentIO> get _componentIOs => [

@@ -1,8 +1,4 @@
-import 'package:n2t_hdl/src/builtin/component/component_gate.dart';
-import 'package:n2t_hdl/src/builtin/component/component_io.dart';
-import 'package:n2t_hdl/src/builtin/component/connection.dart';
-import 'package:n2t_hdl/src/builtin/gate/gate_info.dart';
-import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
+import 'package:n2t_hdl/n2t_hdl.dart';
 
 class NotGate extends ComponentGate {
   NotGate.internal({
@@ -23,13 +19,17 @@ class NotGate extends ComponentGate {
           ],
         ],
       );
-  
+
   static const gateName = 'Not';
 
   static const gateInfo = GateInfo(
     name: 'Not',
-    inputs: ['in'],
-    outputs: ['out'],
+    inputVariables: [
+      BitVariable(name: 'in'),
+    ],
+    outputVariables: [
+      BitVariable(name: 'out'),
+    ],
   );
 
   static List<ComponentIO> get _componentIOs => [

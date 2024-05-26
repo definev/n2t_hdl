@@ -6,11 +6,7 @@ import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
 
 class XorGate extends ComponentGate {
   XorGate.internal({
-    super.info = const GateInfo(
-      name: 'Xor',
-      inputs: ['a', 'b'],
-      outputs: ['out'],
-    ),
+    super.info = gateInfo,
     required super.connections,
     required super.componentIOs,
   });
@@ -31,8 +27,18 @@ class XorGate extends ComponentGate {
           ],
         ],
       );
-  
+
   static const gateName = 'Xor';
+  static const gateInfo = GateInfo(
+    name: 'Xor',
+    inputVariables: [
+      BitVariable(name: 'a'),
+      BitVariable(name: 'b'),
+    ],
+    outputVariables: [
+      BitVariable(name: 'out'),
+    ],
+  );
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(

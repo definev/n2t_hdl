@@ -33,8 +33,8 @@ abstract class Gate implements VCDWritableGate {
   final GateInfo info;
 
   String get name => info.name;
-  int get inputCount => info.inputs.length;
-  int get outputCount => info.outputs.length;
+  int get inputCount => info.rawInputs.length;
+  int get outputCount => info.rawOutputs.length;
 
   List<bool?> update(List<bool?> input);
 

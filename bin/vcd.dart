@@ -92,7 +92,7 @@ void main() {
 
 ComponentGate mux4to1() {
   return ComponentGate(
-    info: GateInfo(
+    info: GateInfo.fromListString(
       name: 'MUX',
       inputs: ['a', 'b', 'sel'],
       outputs: ['out'],

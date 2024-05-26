@@ -39,12 +39,12 @@ class PartsGate extends GateKind {
     final ownerGatePositions = ownerGateBlueprint.info.positions(LinkedConnection.parentIndex);
 
     List<List<Connection>> ownerGateConnections = [
-      for (var index = 0; index < ownerGateBlueprint.info.inputs.length; index++) <Connection>[],
+      for (var index = 0; index < ownerGateBlueprint.info.rawInputs.length; index++) <Connection>[],
     ];
     List<ComponentIOBlueprint> componentIOs = [
       ComponentIOBlueprint.zero(
-        inputCount: ownerGateBlueprint.info.inputs.length,
-        outputCount: ownerGateBlueprint.info.outputs.length,
+        inputCount: ownerGateBlueprint.info.rawInputs.length,
+        outputCount: ownerGateBlueprint.info.rawOutputs.length,
       ),
     ];
 

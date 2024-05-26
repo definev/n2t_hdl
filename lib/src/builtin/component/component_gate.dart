@@ -126,8 +126,8 @@ class ComponentGate extends Gate {
   VCDSignalHandle writeInternalComponents(VCDWriter writer, int depth) {
     final vh = VCDSignalHandle({});
 
-    final inputNames = info.inputs;
-    final outputNames = info.outputs;
+    final inputNames = info.rawInputs;
+    final outputNames = info.rawOutputs;
 
     final writeParent = depth == 0;
     if (writeParent) {
@@ -154,8 +154,8 @@ class ComponentGate extends Gate {
     for (final component in componentIOs.skip(1)) {
       var instanceIndex = InstanceIndex(instance: depth, port: 0);
 
-      final inputNames = component.gate.info.inputs;
-      final outputNames = component.gate.info.outputs;
+      final inputNames = component.gate.info.rawInputs;
+      final outputNames = component.gate.info.rawOutputs;
 
       final instanceName = '${component.gate.name}-$depth';
       writer.addModule(instanceName);

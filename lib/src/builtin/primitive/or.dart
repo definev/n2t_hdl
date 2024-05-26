@@ -33,8 +33,13 @@ class OrGate extends ComponentGate {
 
   static const gateInfo = GateInfo(
     name: 'Or',
-    inputs: ['a', 'b'],
-    outputs: ['out'],
+    inputVariables: [
+      BitVariable(name: 'a'),
+      BitVariable(name: 'b'),
+    ],
+    outputVariables: [
+      BitVariable(name: 'out'),
+    ],
   );
 
   static List<ComponentIO> get _componentIOs => [

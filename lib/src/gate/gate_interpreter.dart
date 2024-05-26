@@ -134,7 +134,11 @@ class GateInterpreter extends HDLInterpreter {
         final kind = chipNode.children[2] as GateKind;
 
         return GateBlueprint(
-          info: GateInfo(name: chipNode.value, inputs: inputs, outputs: outputs),
+          info: GateInfo.fromListString(
+            name: chipNode.value,
+            inputs: inputs,
+            outputs: outputs,
+          ),
           kind: kind,
         );
       },

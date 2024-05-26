@@ -11,11 +11,11 @@ class BuiltinGate extends GateKind {
   (List<List<Connection>>, List<ComponentIOBlueprint>) build(GateFactory factory) {
     final gate = factory.build(name);
 
-    final GateInfo(:inputs, :outputs) = gate.info;
+    final GateInfo(:rawInputs, :rawOutputs) = gate.info;
 
     return (
       [
-        for (var index = 0; index < inputs.length; index++)
+        for (var index = 0; index < rawInputs.length; index++)
           [
             LinkedConnection(
               connectionIndex: index,
@@ -28,7 +28,7 @@ class BuiltinGate extends GateKind {
         ComponentIOBlueprint.connection(
           gateBuilder: () => gate,
           connections: [
-            for (var index = 0; index < outputs.length; index++)
+            for (var index = 0; index < rawOutputs.length; index++)
               [
                 LinkedConnection(
                   connectionIndex: index,

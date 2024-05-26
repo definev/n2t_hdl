@@ -7,11 +7,7 @@ import 'package:n2t_hdl/src/builtin/primitive/or.dart';
 
 class NorGate extends ComponentGate {
   NorGate.internal({
-    super.info = const GateInfo(
-      name: 'Nor',
-      inputs: ['a', 'b'],
-      outputs: ['out'],
-    ),
+    super.info = gateInfo,
     required super.connections,
     required super.componentIOs,
   });
@@ -26,6 +22,17 @@ class NorGate extends ComponentGate {
           [LinkedConnection(connectionIndex: 1, toComponent: 1, toIndex: 1)],
         ],
       );
+
+  static const gateInfo = GateInfo(
+    name: 'Nor',
+    inputVariables: [
+      BitVariable(name: 'a'),
+      BitVariable(name: 'b'),
+    ],
+    outputVariables: [
+      BitVariable(name: 'out'),
+    ],
+  );
 
   static List<ComponentIO> get _componentIOs => [
         ComponentIO(

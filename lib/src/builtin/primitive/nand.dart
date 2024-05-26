@@ -7,7 +7,16 @@ class NandGate extends Gate {
   static NandGate gateBuilder() => NandGate();
 
   static const gateName = 'Nand';
-  static const gateInfo = GateInfo(name: 'Nand', inputs: ['a', 'b'], outputs: ['out']);
+  static const gateInfo = GateInfo(
+    name: 'Nand',
+    inputVariables: [
+      BitVariable(name: 'a'),
+      BitVariable(name: 'b'),
+    ],
+    outputVariables: [
+      BitVariable(name: 'out'),
+    ],
+  );
 
   @override
   List<bool?> update(List<bool?> input) {
