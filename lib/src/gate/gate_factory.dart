@@ -17,6 +17,10 @@ class GateFactory {
     XorGate.gateName: BuiltinChipDefinition(gateBuilder: XorGate.new),
   };
 
+  GateDefinition? getChip(String name) {
+    return _gates[name];
+  }
+
   Gate build(String name) {
     return _gates[name]!.build(this);
   }

@@ -30,11 +30,20 @@ class PartsGate extends GateKind {
 
   String getElementName(String value, int index) => '$value#$index';
 
-  /// TODO: Optimize List<Connection> by caching the connections.
+  GateDefinition? _definition;
+  (List<List<Connection>>, List<ComponentIOBlueprint>) _cachedResult = ([], []);
+
   @override
   (List<List<Connection>>, List<ComponentIOBlueprint>) build(GateFactory factory) {
     final ownerGateBlueprint = blueprint;
     if (ownerGateBlueprint == null) throw Exception('Blueprint not set');
+
+    final newDefinition = factory.getChip(ownerGateBlueprint.info.name);
+    if (_definition != null && newDefinition == _definition) {
+      return _cachedResult;
+    } else {
+      _definition = newDefinition;
+    }
 
     final ownerGatePositions = ownerGateBlueprint.info.positions(LinkedConnection.parentIndex);
 
@@ -447,6 +456,7 @@ class PartsGate extends GateKind {
       componentIOs.add(ComponentIOBlueprint.connection(gateBuilder: () => partGate, connections: partConnections));
     }
 
-    return (ownerGateConnections, componentIOs);
+    _cachedResult = (ownerGateConnections, componentIOs);
+    return _cachedResult;
   }
 }

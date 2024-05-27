@@ -1,3 +1,4 @@
+import 'package:n2t_hdl/n2t_hdl.dart';
 import 'package:n2t_hdl/src/builtin/component/component_io.dart';
 import 'package:n2t_hdl/src/builtin/component/connection.dart';
 import 'package:n2t_hdl/src/builtin/gate/gate.dart';
@@ -10,8 +11,6 @@ part 'builtin/builtin_gate.dart';
 part 'parts/parts_gate.dart';
 
 sealed class GateKind {
-  GateKind();
-
   GateBlueprint? blueprint;
   void setBlueprint(GateBlueprint blueprint) {
     this.blueprint = blueprint;
