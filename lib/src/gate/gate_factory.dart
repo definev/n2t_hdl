@@ -1,21 +1,66 @@
-import 'package:n2t_hdl/src/builtin/gate/gate.dart';
-import 'package:n2t_hdl/src/builtin/primitive/and.dart';
-import 'package:n2t_hdl/src/builtin/primitive/nand.dart';
-import 'package:n2t_hdl/src/builtin/primitive/not.dart';
-import 'package:n2t_hdl/src/builtin/primitive/or.dart';
-import 'package:n2t_hdl/src/builtin/primitive/xor.dart';
-import 'package:n2t_hdl/src/gate/definition/_gate_definition.dart';
+import 'package:n2t_hdl/n2t_hdl.dart';
 
 class GateFactory {
   static final defaultFactory = GateFactory();
 
   final Map<String, GateDefinition> _gates = {
-    NandGate.gateName: BuiltinChipDefinition(gateBuilder: NandGate.new),
-    AndGate.gateName: BuiltinChipDefinition(gateBuilder: AndGate.new),
-    OrGate.gateName: BuiltinChipDefinition(gateBuilder: OrGate.new),
-    NotGate.gateName: BuiltinChipDefinition(gateBuilder: NotGate.new),
-    XorGate.gateName: BuiltinChipDefinition(gateBuilder: XorGate.new),
+    NandGate.gateName: BuiltinChipDefinition(
+      gateInfo: NandGate.gateInfo,
+      gateBuilder: NandGate.new,
+    ),
+    AndGate.gateName: BuiltinChipDefinition(
+      gateInfo: AndGate.gateInfo,
+      gateBuilder: AndGate.new,
+    ),
+    OrGate.gateName: BuiltinChipDefinition(
+      gateInfo: OrGate.gateInfo,
+      gateBuilder: OrGate.new,
+    ),
+    NotGate.gateName: BuiltinChipDefinition(
+      gateInfo: NotGate.gateInfo,
+      gateBuilder: NotGate.new,
+    ),
+    XorGate.gateName: BuiltinChipDefinition(
+      gateInfo: XorGate.gateInfo,
+      gateBuilder: XorGate.new,
+    ),
   };
+
+  List<GateDefinition> get gates => _gates.values.toList();
+
+  static Future<void> initializeDefault() async {
+    final interpreter = GateInterpreter().build();
+    final result = interpreter.parse('''
+CHIP And16 {
+    IN a[16], b[16];
+    OUT out[16];
+
+    PARTS:
+    And (a=a[0], b=b[0], out=out[0]);
+    And (a=a[1], b=b[1], out=out[1]);
+    And (a=a[2], b=b[2], out=out[2]);
+    And (a=a[3], b=b[3], out=out[3]);
+    And (a=a[4], b=b[4], out=out[4]);
+    And (a=a[5], b=b[5], out=out[5]);
+    And (a=a[6], b=b[6], out=out[6]);
+    And (a=a[7], b=b[7], out=out[7]);
+    And (a=a[8], b=b[8], out=out[8]);
+    And (a=a[9], b=b[9], out=out[9]);
+    And (a=a[10], b=b[10], out=out[10]);
+    And (a=a[11], b=b[11], out=out[11]);
+    And (a=a[12], b=b[12], out=out[12]);
+    And (a=a[13], b=b[13], out=out[13]);
+    And (a=a[14], b=b[14], out=out[14]);
+    And (a=a[15], b=b[15], out=out[15]);
+}
+''').value as List<GateBlueprint>;
+
+    final blueprint = result.first;
+    defaultFactory._gates[blueprint.info.name] = GateBlueprintDefinition(
+      gateInfo: blueprint.info,
+      blueprint: blueprint,
+    );
+  }
 
   GateDefinition? getChip(String name) {
     return _gates[name];

@@ -90,6 +90,8 @@ class GateInterpreter extends HDLInterpreter {
         OneToConstant(at: left.value, value: false),
       _ when left.code == NodeCode.tokenizer && right.code == NodeCode.tokenizer =>
         OneToOne(left: left.value, right: right.value),
+      _ when left.code == NodeCode.tokenizer && right.code == NodeCode.arrayAccess =>
+        OneToOne(left: left.value, right: _getArrayAccess(right)),
       _ => throw UnimplementedError('Unknown relationship between $left and $right'),
     };
   }

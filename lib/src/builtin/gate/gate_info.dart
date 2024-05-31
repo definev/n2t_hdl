@@ -54,7 +54,7 @@ class GateInfo {
 
     int index = 0;
     while (index < raw.length) {
-      final input = raw[index];
+      var input = raw[index];
       final arrayEntry = input.split('#');
       if (arrayEntry.length == 1) {
         variables.add(BitVariable(name: input));
@@ -64,16 +64,16 @@ class GateInfo {
         var arraySize = 1;
         while (true) {
           index += 1;
+          if (index >= raw.length) break;
+          input = raw[index];
           final arrayEntry = input.split('#');
-          if (arrayEntry.length == 1) {
-            index -= 1;
-            break;
+          if (arrayEntry.length == 2 && arrayEntry[0] == arrayName) {
+            arraySize += 1;
+            continue;
           }
-          if (arrayEntry[0] != arrayName) {
-            index -= 1;
-            break;
-          }
-          arraySize += 1;
+
+          index -= 1;
+          break;
         }
         variables.add(ArrayVariable(name: arrayName, size: arraySize));
         index++;

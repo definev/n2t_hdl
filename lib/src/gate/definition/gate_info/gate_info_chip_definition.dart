@@ -1,12 +1,13 @@
 part of '../_gate_definition.dart';
 
-class GateInfoChipDefinition extends GateDefinition {
-  const GateInfoChipDefinition({
-    required this.info,
+class GateBlueprintDefinition extends GateDefinition {
+  const GateBlueprintDefinition({
+    required super.gateInfo,
+    required this.blueprint,
   });
 
-  final GateInfo info;
+  final GateBlueprint blueprint;
 
   @override
-  Gate build(factory) => factory.build(info.name);
+  Gate build(factory) => blueprint.build(factory);
 }
