@@ -1,6 +1,11 @@
 import 'package:n2t_hdl/n2t_hdl.dart';
 import 'package:n2t_hdl/src/builtin/gate/gate.dart';
 
+enum GateVariableType {
+  bit,
+  array,
+}
+
 sealed class GateVariable {
   const GateVariable({required this.name});
 
